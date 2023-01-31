@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center"
     android:orientation="vertical"
     tools:context=".MainActivity">
 
@@ -16,14 +17,16 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Name:">
+            android:text="@string/name">
 
         </TextView>
 
         <EditText
             android:id="@+id/edit_text_name"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:autofillHints="CPH001"
+            android:inputType="text" />
     </LinearLayout>
 
     <LinearLayout
@@ -34,12 +37,14 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Location:"></TextView>
+            android:text="@string/location" />
 
         <EditText
             android:id="@+id/edit_text_location"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"></EditText>
+            android:layout_height="wrap_content"
+            android:autofillHints="Enter your location"
+            android:inputType="text" />
     </LinearLayout>
 
 <!--    <View-->
@@ -50,7 +55,7 @@
         android:id="@+id/start_ride_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Start Ride"></Button>
+        android:text="@string/start_ride" />
 
 
 </LinearLayout>
