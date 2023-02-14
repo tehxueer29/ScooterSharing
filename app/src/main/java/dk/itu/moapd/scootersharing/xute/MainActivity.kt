@@ -23,13 +23,11 @@ SOFTWARE.
 
 package dk.itu.moapd.scootersharing.xute
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
-import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
-import com.google.android.material.snackbar.Snackbar
 import dk.itu.moapd.scootersharing.xute.databinding.ActivityMainBinding
 
 /**
@@ -48,13 +46,6 @@ class MainActivity : AppCompatActivity() {
     companion object {
         private val TAG = MainActivity::class.qualifiedName
     }
-
-    // GUI variables .
-    private lateinit var scooterName: EditText
-    private lateinit var scooterLocation: EditText
-    private lateinit var startRideButton: Button
-
-    private val scooter: Scooter = Scooter("", "")
 
     /**
      * Called when the activity is starting. This is where most initialization should go: calling
@@ -86,32 +77,15 @@ class MainActivity : AppCompatActivity() {
         with(mainBinding) {
             // The start ride button listener.
             startRideButton.setOnClickListener {
-                if (scooterName.text.isNotEmpty() && scooterLocation.text.isNotEmpty()) {
-                    // Update the object attributes
-                    val name = scooterName.text.toString().trim()
-                    val location = scooterLocation.text.toString().trim()
-                    scooter.setName(name)
-                    scooter.setLocation(location)
+                val intent = Intent(this@MainActivity, StartRideActivity::class.java)
+                startActivity(intent)
+            }
 
-                    // Reset the text fields and update the UI.
-                    scooterName.text.clear()
-                    scooterLocation.text.clear()
-
-                    showMessage()
-                }
+            updateRideButton.setOnClickListener {
+                val intent = Intent(this@MainActivity, UpdateRideActivity::class.java)
+                startActivity(intent)
             }
         }
     }
-
-    /** Print a message in the ‘Logcat ‘ system and show snackbar message at bottom of user screen.
-     */
-    private fun showMessage() {
-        with (mainBinding){
-
-        Log.d(TAG, scooter.toString())
-
-        val snackbar = Snackbar.make(startRideButton, scooter.toString(), Snackbar.LENGTH_LONG)
-        snackbar.show()
-        }
-    }
 }
+

@@ -23,10 +23,10 @@ SOFTWARE.
 
 package dk.itu.moapd.scootersharing.xute
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
-import android.widget.EditText
+import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import com.google.android.material.snackbar.Snackbar
@@ -46,13 +46,8 @@ class UpdateRideActivity : AppCompatActivity() {
 
     // A set of private constants used in this class .
     companion object {
-        private val TAG = MainActivity::class.qualifiedName
+        private val TAG = UpdateRideActivity::class.qualifiedName
     }
-
-    // GUI variables .
-    private lateinit var scooterName: EditText
-    private lateinit var scooterLocation: EditText
-    private lateinit var startRideButton: Button
 
     private val scooter: Scooter = Scooter("", "")
 
@@ -85,16 +80,16 @@ class UpdateRideActivity : AppCompatActivity() {
         // makes all variables start with [mainBinding.]
         with(mainBinding) {
             // The start ride button listener.
-            startRideButton.setOnClickListener {
-                if (scooterName.text.isNotEmpty() && scooterLocation.text.isNotEmpty()) {
+            updateRideButton.setOnClickListener {
+                if (scooterLocation.text.isNotEmpty()) {
                     // Update the object attributes
-                    val name = scooterName.text.toString().trim()
+//                    val name = scooterName.text.toString().trim()
                     val location = scooterLocation.text.toString().trim()
-                    scooter.setName(name)
+//                    scooter.setName(name)
                     scooter.setLocation(location)
 
                     // Reset the text fields and update the UI.
-                    scooterName.text.clear()
+//                    scooterName.text.clear()
                     scooterLocation.text.clear()
 
                     showMessage()
@@ -106,12 +101,10 @@ class UpdateRideActivity : AppCompatActivity() {
     /** Print a message in the ‘Logcat ‘ system and show snackbar message at bottom of user screen.
      */
     private fun showMessage() {
-        with (mainBinding){
-
-            Log.d(TAG, scooter.toString())
-
-            val snackbar = Snackbar.make(startRideButton, scooter.toString(), Snackbar.LENGTH_LONG)
-            snackbar.show()
-        }
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+        imm?.hideSoftInputFromWindow(mainBinding.updateRideButton.windowToken, 0)
+        Log.d(TAG, scooter.toString())
+        val snackbar = Snackbar.make(mainBinding.updateRideButton, scooter.toString(), Snackbar.LENGTH_LONG)
+        snackbar.show()
     }
 }

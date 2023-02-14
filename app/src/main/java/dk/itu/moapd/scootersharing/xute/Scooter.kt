@@ -22,9 +22,9 @@ SOFTWARE.
  */
 package dk.itu.moapd.scootersharing.xute;
 
-data class Scooter (private var name: String,
-                    private var location: String) {
-
+data class Scooter (private var name: String = "",
+                    private var location: String,
+                    private var timestamp: Long = System.currentTimeMillis()) {
     fun getName(): String {
         return name
     }
@@ -39,6 +39,14 @@ data class Scooter (private var name: String,
 
     fun setLocation(location: String) {
         this.location = location
+    }
+
+    fun getTimestamp(): String {
+        return timestamp.toString()
+    }
+
+    fun setTimestamp(Timestamp: Long) {
+        this.timestamp = Timestamp
     }
 
     override fun toString(): String {
