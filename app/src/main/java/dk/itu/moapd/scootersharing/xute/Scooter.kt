@@ -22,31 +22,16 @@ SOFTWARE.
  */
 package dk.itu.moapd.scootersharing.xute;
 
-data class Scooter (private var name: String = "",
-                    private var location: String,
-                    private var timestamp: Long = System.currentTimeMillis()) {
-    fun getName(): String {
-        return name
-    }
+import java.text.SimpleDateFormat
 
-    fun setName(name: String) {
-        this.name = name
-    }
+data class Scooter (val name: String,
+                    var location: String,
+                    var timestamp: Long = System.currentTimeMillis()) {
 
-    fun getLocation(): String {
-        return location
-    }
-
-    fun setLocation(location: String) {
-        this.location = location
-    }
-
-    fun getTimestamp(): String {
-        return timestamp.toString()
-    }
-
-    fun setTimestamp(Timestamp: Long) {
-        this.timestamp = Timestamp
+    fun getTimestampToString(): String {
+        val timeDateFormat = SimpleDateFormat("dd/MM/yyyy hh:mm")
+        val time = this.timestamp
+        return timeDateFormat.format(time)
     }
 
     override fun toString(): String {

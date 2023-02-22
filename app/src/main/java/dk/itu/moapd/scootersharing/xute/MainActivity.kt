@@ -45,6 +45,8 @@ class MainActivity : AppCompatActivity() {
     // A set of private constants used in this class .
     companion object {
         private val TAG = MainActivity::class.qualifiedName
+        lateinit var ridesDB: RidesDB
+        private lateinit var adapter: CustomArrayAdapter
     }
 
     /**
@@ -69,8 +71,21 @@ class MainActivity : AppCompatActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
 
+        // Singleton to share an object between the app activities .
+        ridesDB = RidesDB.get(this)
+
+//        get all rides object
+        val data = ridesDB.getRidesList()
+
+        // Create the custom adapter to populate a list of dummy objects.
+        adapter = CustomArrayAdapter(this, R.layout.list_rides, data)
+
         // mainBinding is inflated to an object
         mainBinding = ActivityMainBinding.inflate(layoutInflater)
+
+        // Define the list view adapter.
+        mainBinding.contentList.listView.adapter = adapter
+
         setContentView(mainBinding.root)
 
         // makes all variables start with [mainBinding.]

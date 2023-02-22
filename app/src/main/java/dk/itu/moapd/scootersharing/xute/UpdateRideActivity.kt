@@ -47,9 +47,8 @@ class UpdateRideActivity : AppCompatActivity() {
     // A set of private constants used in this class .
     companion object {
         private val TAG = UpdateRideActivity::class.qualifiedName
+        lateinit var ridesDB: RidesDB
     }
-
-    private val scooter: Scooter = Scooter("", "")
 
     /**
      * Called when the activity is starting. This is where most initialization should go: calling
@@ -73,6 +72,9 @@ class UpdateRideActivity : AppCompatActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
 
+        // Singleton to share an object between the app activities .
+        ridesDB = RidesDB.get(this)
+
         // mainBinding is inflated to an object
         mainBinding = ActivityUpdateRideBinding.inflate(layoutInflater)
         setContentView(mainBinding.root)
@@ -86,7 +88,7 @@ class UpdateRideActivity : AppCompatActivity() {
 //                    val name = scooterName.text.toString().trim()
                     val location = scooterLocation.text.toString().trim()
 //                    scooter.setName(name)
-                    scooter.setLocation(location)
+                    StartRideActivity.ridesDB.updateCurrentScooter(location)
 
                     // Reset the text fields and update the UI.
 //                    scooterName.text.clear()
@@ -103,8 +105,9 @@ class UpdateRideActivity : AppCompatActivity() {
     private fun showMessage() {
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
         imm?.hideSoftInputFromWindow(mainBinding.updateRideButton.windowToken, 0)
-        Log.d(TAG, scooter.toString())
-        val snackbar = Snackbar.make(mainBinding.updateRideButton, scooter.toString(), Snackbar.LENGTH_LONG)
+        Log.d(TAG, StartRideActivity.ridesDB.getCurrentScooter().toString())
+        val snackbar =
+            Snackbar.make(mainBinding.updateRideButton, StartRideActivity.ridesDB.getCurrentScooter().toString(), Snackbar.LENGTH_LONG)
         snackbar.show()
     }
 }

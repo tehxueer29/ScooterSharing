@@ -47,11 +47,11 @@ class StartRideActivity : AppCompatActivity() {
     // A set of private constants used in this class .
     companion object {
         private val TAG = StartRideActivity::class.qualifiedName
+        lateinit var ridesDB: RidesDB
     }
 
     // GUI variables .
 
-    private val scooter: Scooter = Scooter("", "")
 
     /**
      * Called when the activity is starting. This is where most initialization should go: calling
@@ -75,6 +75,9 @@ class StartRideActivity : AppCompatActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
 
+        // Singleton to share an object between the app activities .
+        ridesDB = RidesDB.get(this)
+
         // mainBinding is inflated to an object
         mainBinding = ActivityStartRideBinding.inflate(layoutInflater)
         setContentView(mainBinding.root)
@@ -87,8 +90,7 @@ class StartRideActivity : AppCompatActivity() {
                     // Update the object attributes
                     val name = scooterName.text.toString().trim()
                     val location = scooterLocation.text.toString().trim()
-                    scooter.setName(name)
-                    scooter.setLocation(location)
+                    ridesDB.addScooter(name, location)
 
                     // Reset the text fields and update the UI.
                     scooterName.text.clear()
@@ -99,13 +101,15 @@ class StartRideActivity : AppCompatActivity() {
             }
         }
     }
+
     /** Print a message in the ‘Logcat ‘ system and show snackbar message at bottom of user screen.
      */
     private fun showMessage() {
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
         imm?.hideSoftInputFromWindow(mainBinding.startRideButton.windowToken, 0)
-        Log.d(TAG, scooter.toString())
-        val snackbar = Snackbar.make(mainBinding.startRideButton, scooter.toString(), Snackbar.LENGTH_LONG)
+        Log.d(TAG, ridesDB.getCurrentScooter().toString())
+        val snackbar =
+            Snackbar.make(mainBinding.startRideButton, ridesDB.getCurrentScooter().toString(), Snackbar.LENGTH_LONG)
         snackbar.show()
     }
 }
