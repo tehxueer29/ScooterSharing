@@ -1,18 +1,18 @@
 package dk.itu.moapd.scootersharing.xute
 
-import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import dk.itu.moapd.scootersharing.xute.databinding.ListRidesBinding
 
 /**
- * A class to customize an adapter with a `ViewHolder` to populate a dummy dataset into a `ListView`.
+ * A class to customize an adapter with a `ViewHolder` to populate a dummy dataset into a
+ * `RecyclerView`.
  */
-class CustomArrayAdapter(context: Context, private var resource: Int, data: List<Scooter>) :
-    ArrayAdapter<Scooter>(context, R.layout.list_rides, data) {
+class CustomArrayAdapter(private val data: ArrayList<Scooter>) :
+    RecyclerView.Adapter<CustomArrayAdapter.ViewHolder>() {
+
 
     /**
      * A set of private constants used in this class.
@@ -25,10 +25,26 @@ class CustomArrayAdapter(context: Context, private var resource: Int, data: List
      * An internal view holder class used to represent the layout that shows a single `DummyModel`
      * instance in the `ListView`.
      */
-    private class ViewHolder(view: View) {
-        val scooterName: TextView = view.findViewById(R.id.scooter_name)
-        val scooterLocation: TextView = view.findViewById(R.id.scooter_location)
-        val scooterTime: TextView = view.findViewById(R.id.scooter_time)
+    class ViewHolder(private val binding: ListRidesBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+
+        /**
+         * This method binds the `ViewHolder` instance and more cleanly separate concerns between
+         * the view holder and the adapter.
+         *
+         * @param dummy The current `Dummy` object.
+         */
+        fun bind(dummy: Scooter) {
+            binding.scooterName.text = binding.root.context.getString(
+                R.string.scooter_name, dummy.name
+            )
+            binding.scooterLocation.text = binding.root.context.getString(
+                R.string.scooter_location, dummy.location
+            )
+            binding.scooterTime.text = binding.root.context.getString(
+                R.string.scooter_time, dummy.getTimestampToString()
+            )
+        }
     }
 
     /**
@@ -40,31 +56,52 @@ class CustomArrayAdapter(context: Context, private var resource: Int, data: List
      *
      * @return A new view holder populated with the selected `DummyModel` data.
      */
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        var view = convertView
-        val viewHolder: ViewHolder
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        // Log system.
+        Log.d(TAG, "Creating a new ViewHolder.")
 
-        // The old view should be reused, if possible. You should check that this view is non-null
-        // and of an appropriate type before using.
-        if (view == null) {
-            val inflater = LayoutInflater.from(context)
-            view = inflater.inflate(resource, parent, false)
-            viewHolder = ViewHolder(view)
-        } else
-            viewHolder = view.tag as ViewHolder
+        // Create a new view, which defines the UI of the list item
+        val inflater = LayoutInflater.from(parent.context)
+        val binding = ListRidesBinding.inflate(inflater, parent, false)
+        return ViewHolder(binding)
+    }
 
-        // Get the selected item in the dataset.
-        val dummy = getItem(position)
+
+    /**
+     * Called by the `RecyclerView` to display the data at the specified position. This method
+     * should update the contents of the `itemView()` to reflect the item at the given position.
+     *
+     * Note that unlike `ListView`, `RecyclerView` will not call this method again if the position
+     * of the item changes in the data set unless the item itself is invalidated or the new position
+     * cannot be determined. For this reason, you should only use the `position` parameter while
+     * acquiring the related data item inside this method and should not keep a copy of it. If you
+     * need the position of an item later on (e.g., in a click listener), use
+     * `getBindingAdapterPosition()` which will have the updated adapter position.
+     *
+     * Override `onBindViewHolder(ViewHolder, int, List)` instead if Adapter can handle efficient
+     * partial bind.
+     *
+     * @param holder The `ViewHolder` which should be updated to represent the contents of the item
+     *      at the given position in the data set.
+     * @param position The position of the item within the adapter's data set.
+     */
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+
+        // Get element from your dataset at this position and replace the
+        // contents of the view with that element
+        val dummy = data[position]
         Log.d(TAG, "Populate an item at position: $position")
 
-        // Populate the view holder with the selected `Scooter` data.
-        viewHolder.scooterName.text = parent.context.getString(R.string.scooter_name, dummy?.name)
-        viewHolder.scooterLocation.text = parent.context.getString(R.string.scooter_location, dummy?.location)
-        viewHolder.scooterTime.text = parent.context.getString(R.string.scooter_time, dummy?.getTimestampToString())
-
-        // Set the new view holder and return the view object.
-        view?.tag = viewHolder
-        return view!!
+        // Bind the view holder with the selected `DummyModel` data.
+        holder.bind(dummy)
     }
+
+    /**
+     * Returns the total number of items in the data set held by the adapter.
+     *
+     * @return The total number of items in this adapter.
+     */
+    override fun getItemCount() = data.size
+
 
 }

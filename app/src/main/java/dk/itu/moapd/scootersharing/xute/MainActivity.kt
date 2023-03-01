@@ -28,6 +28,8 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
+import androidx.core.view.isVisible
+import androidx.recyclerview.widget.LinearLayoutManager
 import dk.itu.moapd.scootersharing.xute.databinding.ActivityMainBinding
 
 /**
@@ -78,13 +80,10 @@ class MainActivity : AppCompatActivity() {
         val data = ridesDB.getRidesList()
 
         // Create the custom adapter to populate a list of dummy objects.
-        adapter = CustomArrayAdapter(this, R.layout.list_rides, data)
+        adapter = CustomArrayAdapter(data)
 
         // mainBinding is inflated to an object
         mainBinding = ActivityMainBinding.inflate(layoutInflater)
-
-        // Define the list view adapter.
-        mainBinding.contentList.listView.adapter = adapter
 
         setContentView(mainBinding.root)
 
@@ -92,13 +91,22 @@ class MainActivity : AppCompatActivity() {
         with(mainBinding) {
             // The start ride button listener.
             startRideButton.setOnClickListener {
+                contentList.recyclerView.isVisible = false
                 val intent = Intent(this@MainActivity, StartRideActivity::class.java)
                 startActivity(intent)
             }
 
             updateRideButton.setOnClickListener {
+                contentList.recyclerView.isVisible = false
                 val intent = Intent(this@MainActivity, UpdateRideActivity::class.java)
                 startActivity(intent)
+            }
+
+            listRideButton.setOnClickListener {
+                // Define the list view adapter.
+                contentList.recyclerView.isVisible = true
+                contentList.recyclerView.layoutManager = LinearLayoutManager(this@MainActivity)
+                contentList.recyclerView.adapter = adapter
             }
         }
     }

@@ -81,6 +81,7 @@ class UpdateRideActivity : AppCompatActivity() {
 
         // makes all variables start with [mainBinding.]
         with(mainBinding) {
+            scooterName.hint = ridesDB.getCurrentScooter().name
             // The start ride button listener.
             updateRideButton.setOnClickListener {
                 if (scooterLocation.text.isNotEmpty()) {
@@ -88,7 +89,7 @@ class UpdateRideActivity : AppCompatActivity() {
 //                    val name = scooterName.text.toString().trim()
                     val location = scooterLocation.text.toString().trim()
 //                    scooter.setName(name)
-                    StartRideActivity.ridesDB.updateCurrentScooter(location)
+                    ridesDB.updateCurrentScooter(location)
 
                     // Reset the text fields and update the UI.
 //                    scooterName.text.clear()
@@ -105,9 +106,9 @@ class UpdateRideActivity : AppCompatActivity() {
     private fun showMessage() {
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
         imm?.hideSoftInputFromWindow(mainBinding.updateRideButton.windowToken, 0)
-        Log.d(TAG, StartRideActivity.ridesDB.getCurrentScooter().toString())
+        Log.d(TAG, ridesDB.getCurrentScooter().toString())
         val snackbar =
-            Snackbar.make(mainBinding.updateRideButton, StartRideActivity.ridesDB.getCurrentScooter().toString(), Snackbar.LENGTH_LONG)
+            Snackbar.make(mainBinding.updateRideButton, ridesDB.getCurrentScooter().toString(), Snackbar.LENGTH_LONG)
         snackbar.show()
     }
 }

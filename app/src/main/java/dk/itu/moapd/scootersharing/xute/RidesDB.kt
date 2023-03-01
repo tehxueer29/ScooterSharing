@@ -30,12 +30,19 @@ class RidesDB private constructor(context: Context) {
         )
     }
 
-    fun getRidesList(): List<Scooter> {
+    fun getRidesList(): ArrayList<Scooter> {
         return rides
     }
 
     fun addScooter(name: String, location: String) {
         rides.add(
+            Scooter(name, location)
+        )
+    }
+
+    fun deleteScooter(name: String, location: String) {
+        //TODO havent finish 
+        rides.remove(
             Scooter(name, location)
         )
     }

@@ -62,9 +62,9 @@
 
     <include
         android:id="@+id/content_list"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         layout="@layout/content_list"
+        android:layout_width="478dp"
+        android:layout_height="219dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
