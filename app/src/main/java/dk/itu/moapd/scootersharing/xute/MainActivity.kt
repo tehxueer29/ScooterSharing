@@ -23,12 +23,12 @@ SOFTWARE.
 
 package dk.itu.moapd.scootersharing.xute
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.core.view.isVisible
+import androidx.navigation.fragment.NavHostFragment.Companion.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import dk.itu.moapd.scootersharing.xute.databinding.ActivityMainBinding
 
@@ -47,8 +47,8 @@ class MainActivity : AppCompatActivity() {
     // A set of private constants used in this class .
     companion object {
         private val TAG = MainActivity::class.qualifiedName
-        lateinit var ridesDB: RidesDB
-        private lateinit var adapter: CustomArrayAdapter
+//        lateinit var ridesDB: RidesDB
+//        private lateinit var adapter: CustomArrayAdapter
     }
 
     /**
@@ -74,41 +74,19 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         // Singleton to share an object between the app activities .
-        ridesDB = RidesDB.get(this)
+//        ridesDB = RidesDB.get(this)
 
 //        get all rides object
-        val data = ridesDB.getRidesList()
+//        val data = ridesDB.getRidesList()
 
         // Create the custom adapter to populate a list of dummy objects.
-        adapter = CustomArrayAdapter(data)
+//        adapter = CustomArrayAdapter(data)
 
         // mainBinding is inflated to an object
         mainBinding = ActivityMainBinding.inflate(layoutInflater)
-
         setContentView(mainBinding.root)
 
-        // makes all variables start with [mainBinding.]
-        with(mainBinding) {
-            // The start ride button listener.
-            startRideButton.setOnClickListener {
-                contentList.recyclerView.isVisible = false
-                val intent = Intent(this@MainActivity, StartRideActivity::class.java)
-                startActivity(intent)
-            }
 
-            updateRideButton.setOnClickListener {
-                contentList.recyclerView.isVisible = false
-                val intent = Intent(this@MainActivity, UpdateRideActivity::class.java)
-                startActivity(intent)
-            }
-
-            listRideButton.setOnClickListener {
-                // Define the list view adapter.
-                contentList.recyclerView.isVisible = true
-                contentList.recyclerView.layoutManager = LinearLayoutManager(this@MainActivity)
-                contentList.recyclerView.adapter = adapter
-            }
-        }
     }
 }
 

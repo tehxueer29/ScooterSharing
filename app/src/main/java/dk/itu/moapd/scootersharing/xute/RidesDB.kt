@@ -6,9 +6,7 @@ import kotlin.collections.ArrayList
 
 class RidesDB private constructor(context: Context) {
     private val rides = ArrayList<Scooter>()
-
     companion object : RidesDBHolder<RidesDB, Context>(::RidesDB)
-
     init {
         rides.add(
             Scooter("CPH001", "ITU", randomDate())
@@ -49,6 +47,7 @@ class RidesDB private constructor(context: Context) {
 
     fun updateCurrentScooter(location: String) {
         rides.last().location = location
+        rides.last().timestamp = System.currentTimeMillis()
     }
 
     fun getCurrentScooter(): Scooter {
