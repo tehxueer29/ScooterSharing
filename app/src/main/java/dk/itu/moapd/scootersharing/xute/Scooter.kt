@@ -23,7 +23,6 @@ SOFTWARE.
 package dk.itu.moapd.scootersharing.xute;
 
 import java.text.SimpleDateFormat
-
 data class Scooter (val name: String,
                     var location: String,
                     var timestamp: Long = System.currentTimeMillis()) {

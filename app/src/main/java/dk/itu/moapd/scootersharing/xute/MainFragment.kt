@@ -28,10 +28,11 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.content.Intent
 import androidx.core.view.isVisible
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import dk.itu.moapd.scootersharing.xute.databinding.FragmentMainBinding
+import dk.itu.moapd.scootersharing.xute.databinding.FragmentStartRideBinding
 
 /**
  * A simple [Fragment] subclass.
@@ -58,14 +59,17 @@ class MainFragment : Fragment() {
 //        WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
     }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
         binding =
-            FragmentMainBinding.inflate(layoutInflater, container,
-                false)
+            FragmentMainBinding.inflate(
+                layoutInflater, container,
+                false
+            )
         return binding.root
     }
 
@@ -84,23 +88,21 @@ class MainFragment : Fragment() {
         // makes all variables start with [mainBinding.]
         with(binding) {
 //            // The start ride button listener.
-//            startRideButton.setOnClickListener {
-//                contentList.recyclerView.isVisible = false
-//                val intent = Intent(this@MainFragment, StartRideActivity::class.java)
-//                startActivity(intent)
-//            }
+            startRideButton.setOnClickListener {
+                contentList.recyclerView.isVisible = false
+                findNavController().navigate(R.id.action_mainFragment_to_startRideFragment2)
+            }
 //
-//            updateRideButton.setOnClickListener {
+            updateRideButton.setOnClickListener {
 //                contentList.recyclerView.isVisible = false
-//                val intent = Intent(this@MainFragment, UpdateRideActivity::class.java)
-//                startActivity(intent)
-//            }
+                findNavController().navigate(R.id.action_mainFragment_to_updateRideFragment2)
+            }
 //
             listRideButton.setOnClickListener {
 //                // Define the list view adapter.
-            contentList.recyclerView.isVisible = true
-            contentList.recyclerView.layoutManager = LinearLayoutManager(context)
-            contentList.recyclerView.adapter = MainFragment.adapter
+                contentList.recyclerView.isVisible = true
+                contentList.recyclerView.layoutManager = LinearLayoutManager(context)
+                contentList.recyclerView.adapter = MainFragment.adapter
             }
         }
 

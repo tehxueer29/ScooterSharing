@@ -9,5 +9,22 @@
         android:id="@+id/mainFragment"
         android:name="dk.itu.moapd.scootersharing.xute.MainFragment"
         android:label="fragment_main"
-        tools:layout="@layout/fragment_main" />
+        tools:layout="@layout/fragment_main" >
+        <action
+            android:id="@+id/action_mainFragment_to_startRideFragment2"
+            app:destination="@id/startRideFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_updateRideFragment2"
+            app:destination="@id/updateRideFragment2" />
+    </fragment>
+    <fragment
+        android:id="@+id/startRideFragment"
+        android:name="dk.itu.moapd.scootersharing.xute.StartRideFragment"
+        android:label="fragment_start_ride"
+        tools:layout="@layout/fragment_start_ride" />
+    <fragment
+        android:id="@+id/updateRideFragment2"
+        android:name="dk.itu.moapd.scootersharing.xute.UpdateRideFragment"
+        android:label="fragment_update_ride"
+        tools:layout="@layout/fragment_update_ride" />
 </navigation>

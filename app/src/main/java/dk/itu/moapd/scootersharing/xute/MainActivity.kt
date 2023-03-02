@@ -27,9 +27,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
-import androidx.core.view.isVisible
-import androidx.navigation.fragment.NavHostFragment.Companion.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.navigation.fragment.NavHostFragment
 import dk.itu.moapd.scootersharing.xute.databinding.ActivityMainBinding
 
 /**
@@ -73,20 +71,13 @@ class MainActivity : AppCompatActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
 
-        // Singleton to share an object between the app activities .
-//        ridesDB = RidesDB.get(this)
-
-//        get all rides object
-//        val data = ridesDB.getRidesList()
-
-        // Create the custom adapter to populate a list of dummy objects.
-//        adapter = CustomArrayAdapter(data)
-
         // mainBinding is inflated to an object
         mainBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mainBinding.root)
 
-
+        val navHostFragment = supportFragmentManager
+            .findFragmentById(R.id.fragment_container_view) as NavHostFragment
+        val navController = navHostFragment.navController
     }
 }
 
