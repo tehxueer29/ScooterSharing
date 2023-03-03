@@ -46,6 +46,9 @@ class UpdateRideFragment : Fragment() {
         // Singleton to share an object between the app activities .
         ridesDB = RidesDB.get(requireContext())
 
+        //        get all rides object
+        val data = ridesDB.getRidesList()
+
         with(binding) {
             scooterName.hint = ridesDB.getCurrentScooter().name
 
@@ -71,11 +74,11 @@ class UpdateRideFragment : Fragment() {
     private fun showMessage() {
         val imm = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
         imm?.hideSoftInputFromWindow(binding.updateRideButton.windowToken, 0)
-        Log.d(TAG, StartRideFragment.ridesDB.getCurrentScooter().toString())
+        Log.d(TAG, ridesDB.getCurrentScooter().toString())
         val snackbar =
             Snackbar.make(
                 binding.updateRideButton,
-                StartRideFragment.ridesDB.getCurrentScooter().toString(),
+                ridesDB.getCurrentScooter().toString(),
                 Snackbar.LENGTH_LONG
             )
         snackbar.show()

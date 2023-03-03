@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ScooterSharing</string>
+    <string name="app_name">Scooter Sharing</string>
     <string name="name">Enter the scooter name</string>
     <string name="location">The current scooter location</string>
     <string name="start_ride_button">Start Ride</string>

@@ -39,7 +39,6 @@ class RidesDB private constructor(context: Context) {
     }
 
     fun deleteScooter(name: String, location: String) {
-        //TODO havent finish 
         rides.remove(
             Scooter(name, location)
         )

@@ -24,6 +24,7 @@ SOFTWARE.
 package dk.itu.moapd.scootersharing.xute
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -32,7 +33,7 @@ import androidx.core.view.isVisible
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import dk.itu.moapd.scootersharing.xute.databinding.FragmentMainBinding
-import dk.itu.moapd.scootersharing.xute.databinding.FragmentStartRideBinding
+import dk.itu.moapd.scootersharing.xute.databinding.ListRidesBinding
 
 /**
  * A simple [Fragment] subclass.
@@ -55,8 +56,8 @@ class MainFragment : Fragment() {
      * to all views that have an ID in the corresponding layout.
      */
     private lateinit var binding: FragmentMainBinding
+    private lateinit var listBinding: ListRidesBinding
     override fun onCreate(savedInstanceState: Bundle?) {
-//        WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
     }
 
@@ -70,6 +71,7 @@ class MainFragment : Fragment() {
                 layoutInflater, container,
                 false
             )
+//        listBinding = ListRidesBinding.bind(binding.root)
         return binding.root
     }
 
@@ -89,7 +91,7 @@ class MainFragment : Fragment() {
         with(binding) {
 //            // The start ride button listener.
             startRideButton.setOnClickListener {
-                contentList.recyclerView.isVisible = false
+//                contentList.recyclerView.isVisible = false
                 findNavController().navigate(R.id.action_mainFragment_to_startRideFragment2)
             }
 //
@@ -104,6 +106,17 @@ class MainFragment : Fragment() {
                 contentList.recyclerView.layoutManager = LinearLayoutManager(context)
                 contentList.recyclerView.adapter = MainFragment.adapter
             }
+
+//            listBinding.deleteRideButton.setOnClickListener {
+//
+//                Log.d(TAG, "clicked!")
+//
+////                ridesDB.deleteScooter("CPH001", "ITU")
+//////                // Define the list view adapter.
+////                contentList.recyclerView.isVisible = true
+////                contentList.recyclerView.layoutManager = LinearLayoutManager(context)
+////                contentList.recyclerView.adapter = MainFragment.adapter
+//            }
         }
 
     }

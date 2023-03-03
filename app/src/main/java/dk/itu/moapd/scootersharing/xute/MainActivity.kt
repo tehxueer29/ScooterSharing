@@ -42,7 +42,9 @@ class MainActivity : AppCompatActivity() {
      */
     private lateinit var mainBinding: ActivityMainBinding
 
-    // A set of private constants used in this class .
+    /**
+     * A set of static attributes used in this activity class.
+     */
     companion object {
         private val TAG = MainActivity::class.qualifiedName
 //        lateinit var ridesDB: RidesDB
