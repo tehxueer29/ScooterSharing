@@ -29,38 +29,30 @@
                 android:layout_height="wrap_content"
                 android:text="@string/scooter_name"
                 android:textAppearance="?attr/textAppearanceHeadline6"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.5" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/scooter_location"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:text="@string/scooter_location"
                 android:textAppearance="?attr/textAppearanceBody2"
                 android:textColor="?android:attr/textColorSecondary"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/scooter_time"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/scooter_name"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.5" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/scooter_name" />
 
             <TextView
                 android:id="@+id/scooter_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
                 android:text="@string/scooter_time"
                 android:textAppearance="?attr/textAppearanceBody2"
                 android:textColor="?android:attr/textColorSecondary"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/delete_ride_button"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/scooter_location"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.5" />
+                app:layout_constraintBaseline_toBaselineOf="@+id/scooter_location"
+                app:layout_constraintStart_toEndOf="@+id/scooter_location" />
 
             <ImageButton
                 android:id="@+id/delete_ride_button"
