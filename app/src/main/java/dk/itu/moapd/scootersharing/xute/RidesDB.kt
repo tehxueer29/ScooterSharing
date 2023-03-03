@@ -38,10 +38,8 @@ class RidesDB private constructor(context: Context) {
         )
     }
 
-    fun deleteScooter(name: String, location: String) {
-        rides.remove(
-            Scooter(name, location)
-        )
+    fun deleteScooter(time: Long) {
+        rides.removeAll { it.timestamp == time }
     }
 
     fun updateCurrentScooter(location: String) {

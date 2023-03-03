@@ -33,7 +33,6 @@ import androidx.core.view.isVisible
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import dk.itu.moapd.scootersharing.xute.databinding.FragmentMainBinding
-import dk.itu.moapd.scootersharing.xute.databinding.ListRidesBinding
 
 /**
  * A simple [Fragment] subclass.
@@ -56,22 +55,17 @@ class MainFragment : Fragment() {
      * to all views that have an ID in the corresponding layout.
      */
     private lateinit var binding: FragmentMainBinding
-    private lateinit var listBinding: ListRidesBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        binding =
-            FragmentMainBinding.inflate(
-                layoutInflater, container,
-                false
-            )
-//        listBinding = ListRidesBinding.bind(binding.root)
+        binding = FragmentMainBinding.inflate(
+            layoutInflater, container, false
+        )
         return binding.root
     }
 
@@ -91,32 +85,36 @@ class MainFragment : Fragment() {
         with(binding) {
 //            // The start ride button listener.
             startRideButton.setOnClickListener {
-//                contentList.recyclerView.isVisible = false
+//                updateList(view)
                 findNavController().navigate(R.id.action_mainFragment_to_startRideFragment2)
             }
 //
             updateRideButton.setOnClickListener {
-//                contentList.recyclerView.isVisible = false
+//                updateList(view)
                 findNavController().navigate(R.id.action_mainFragment_to_updateRideFragment2)
             }
 //
             listRideButton.setOnClickListener {
-//                // Define the list view adapter.
-                contentList.recyclerView.isVisible = true
-                contentList.recyclerView.layoutManager = LinearLayoutManager(context)
-                contentList.recyclerView.adapter = MainFragment.adapter
+                // Define the list view adapter.
+                updateList(view)
             }
 
-//            listBinding.deleteRideButton.setOnClickListener {
-//
-//                Log.d(TAG, "clicked!")
-//
-////                ridesDB.deleteScooter("CPH001", "ITU")
-//////                // Define the list view adapter.
-////                contentList.recyclerView.isVisible = true
-////                contentList.recyclerView.layoutManager = LinearLayoutManager(context)
-////                contentList.recyclerView.adapter = MainFragment.adapter
-//            }
+            adapter.setOnItemClickListener {
+                //here you have your UserModel in your fragment, do whatever you want to with it
+                Log.d(TAG, "clicked!MAINFRAG")
+                ridesDB.deleteScooter(it.timestamp)
+                // Define the list view adapter.
+                updateList(view)
+            }
+
+        }
+
+    }
+
+    private fun updateList(view: View) {
+        with(binding) {
+            contentList.recyclerView.layoutManager = LinearLayoutManager(context)
+            contentList.recyclerView.adapter = adapter
         }
 
     }

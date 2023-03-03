@@ -3,6 +3,7 @@ package dk.itu.moapd.scootersharing.xute
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.ImageButton
 import androidx.recyclerview.widget.RecyclerView
 import dk.itu.moapd.scootersharing.xute.databinding.ListRidesBinding
 
@@ -45,6 +46,8 @@ class CustomArrayAdapter(private val data: ArrayList<Scooter>) :
                 R.string.scooter_time, dummy.getTimestampToString()
             )
         }
+
+        var deleteRideButton: ImageButton = binding.deleteRideButton
     }
 
     /**
@@ -91,6 +94,12 @@ class CustomArrayAdapter(private val data: ArrayList<Scooter>) :
         // contents of the view with that element
         val dummy = data[position]
         Log.d(TAG, "Populate an item at position: $position")
+        holder.deleteRideButton.setOnClickListener { v ->
+            Log.d(TAG, "clicked!")
+            onItemClickListener?.let{
+                it(dummy)
+            }
+        }
 
         // Bind the view holder with the selected `DummyModel` data.
         holder.bind(dummy)
@@ -102,6 +111,11 @@ class CustomArrayAdapter(private val data: ArrayList<Scooter>) :
      * @return The total number of items in this adapter.
      */
     override fun getItemCount() = data.size
+
+    private var onItemClickListener:((Scooter)->Unit)? = null
+    fun setOnItemClickListener(listener: (Scooter)->Unit) {
+        onItemClickListener = listener
+    }
 
 
 }
