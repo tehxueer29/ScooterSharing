@@ -21,10 +21,30 @@
         android:id="@+id/startRideFragment"
         android:name="dk.itu.moapd.scootersharing.xute.StartRideFragment"
         android:label="fragment_start_ride"
-        tools:layout="@layout/fragment_start_ride" />
+        tools:layout="@layout/fragment_start_ride" >
+        <action
+            android:id="@+id/action_startRideFragment_to_alertFragment"
+            app:destination="@id/alertFragment" />
+    </fragment>
     <fragment
         android:id="@+id/updateRideFragment2"
         android:name="dk.itu.moapd.scootersharing.xute.UpdateRideFragment"
         android:label="fragment_update_ride"
-        tools:layout="@layout/fragment_update_ride" />
+        tools:layout="@layout/fragment_update_ride" >
+        <action
+            android:id="@+id/action_updateRideFragment2_to_alertFragment"
+            app:destination="@id/alertFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/alertFragment"
+        android:name="dk.itu.moapd.scootersharing.xute.AlertFragment"
+        android:label="fragment_alert"
+        tools:layout="@layout/fragment_alert" >
+        <action
+            android:id="@+id/action_alertFragment_to_startRideFragment"
+            app:destination="@id/startRideFragment" />
+        <action
+            android:id="@+id/action_alertFragment_to_updateRideFragment2"
+            app:destination="@id/updateRideFragment2" />
+    </fragment>
 </navigation>

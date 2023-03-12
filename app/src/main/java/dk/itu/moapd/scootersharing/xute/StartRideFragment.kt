@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import dk.itu.moapd.scootersharing.xute.databinding.FragmentStartRideBinding
 
@@ -57,6 +58,11 @@ class StartRideFragment : Fragment() {
                     scooterLocation.text.clear()
 
                     showMessage()
+
+                    
+                    findNavController().navigate(
+                        R.id.action_startRideFragment_to_alertFragment
+                    )
                 }
             }
         }
