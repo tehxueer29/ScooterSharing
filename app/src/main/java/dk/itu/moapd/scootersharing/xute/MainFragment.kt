@@ -23,15 +23,22 @@ SOFTWARE.
 
 package dk.itu.moapd.scootersharing.xute
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
+import androidx.core.graphics.Insets
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import dk.itu.moapd.scootersharing.xute.databinding.FragmentMainBinding
 
 /**
@@ -102,9 +109,19 @@ class MainFragment : Fragment() {
             adapter.setOnItemClickListener {
                 //here you have your UserModel in your fragment, do whatever you want to with it
                 Log.d(TAG, "clicked!MAINFRAG")
-                ridesDB.deleteScooter(it.timestamp)
-                // Define the list view adapter.
-                updateList(view)
+
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(getString(R.string.delete_ride))
+                    .setMessage(getString(R.string.alert_supporting_text))
+                    .setNeutralButton(getString(R.string.cancel)) { _, _ ->
+                    }
+                    .setPositiveButton(getString(R.string.accept)) { _, _ ->
+                        ridesDB.deleteScooter(it.timestamp)
+                        // Define the list view adapter.
+                        updateList(view)
+                        showMessage()
+                    }
+                    .show()
             }
 
         }
@@ -116,6 +133,18 @@ class MainFragment : Fragment() {
             contentList.recyclerView.layoutManager = LinearLayoutManager(context)
             contentList.recyclerView.adapter = adapter
         }
+
+    }
+
+    private fun showMessage() {
+        Log.d(TAG, getString(R.string.started))
+        val snackbar =
+            Snackbar.make(
+                binding.startRideButton,
+                getString(R.string.ride_deleted),
+                Snackbar.LENGTH_LONG
+            )
+        snackbar.show()
 
     }
 

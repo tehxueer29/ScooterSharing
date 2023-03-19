@@ -33,7 +33,7 @@ data class Scooter (val name: String,
         return timeDateFormat.format(time)
     }
 
-    override fun toString(): String {
-        return "Ride started using Scooter(name=$name, location=$location)."
+    fun customMessage(text: String): String {
+        return "Ride $text using Scooter(name=$name, location=$location)."
     }
 }

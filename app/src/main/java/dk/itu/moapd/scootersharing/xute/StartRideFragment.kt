@@ -8,7 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
-import androidx.navigation.fragment.findNavController
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import dk.itu.moapd.scootersharing.xute.databinding.FragmentStartRideBinding
 
@@ -19,6 +19,7 @@ import dk.itu.moapd.scootersharing.xute.databinding.FragmentStartRideBinding
  */
 class StartRideFragment : Fragment() {
     private lateinit var binding: FragmentStartRideBinding
+
 
     // A set of private constants used in this class .
     companion object {
@@ -48,33 +49,44 @@ class StartRideFragment : Fragment() {
             // The start ride button listener.
             startRideButton.setOnClickListener {
                 if (scooterName.text.isNotEmpty() && scooterLocation.text.isNotEmpty()) {
-                    // Update the object attributes
-                    val name = scooterName.text.toString().trim()
-                    val location = scooterLocation.text.toString().trim()
-                    ridesDB.addScooter(name, location)
 
-                    // Reset the text fields and update the UI.
-                    scooterName.text.clear()
-                    scooterLocation.text.clear()
+                    MaterialAlertDialogBuilder(requireContext())
+                        .setTitle(getString(R.string.start_ride))
+                        .setMessage(getString(R.string.alert_supporting_text))
+                        .setNeutralButton(getString(R.string.cancel)) { _, _ ->
+                        }
+                        .setPositiveButton(getString(R.string.accept)) { _, _ ->
+                            // Update the object attributes
+                            val name = scooterName.text.toString().trim()
+                            val location = scooterLocation.text.toString().trim()
+                            ridesDB.addScooter(name, location)
 
-                    showMessage()
+                            // Reset the text fields and update the UI.
+                            scooterName.text.clear()
+                            scooterLocation.text.clear()
 
-                    
-                    findNavController().navigate(
-                        R.id.action_startRideFragment_to_alertFragment
-                    )
+                            showMessage()
+                        }
+                        .show()
+
                 }
             }
         }
     }
+
     /** Print a message in the ‘Logcat ‘ system and show snackbar message at bottom of user screen.
      */
     private fun showMessage() {
         val imm = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
         imm?.hideSoftInputFromWindow(binding.startRideButton.windowToken, 0)
-        Log.d(TAG, ridesDB.getCurrentScooter().toString())
+        Log.d(TAG, ridesDB.getCurrentScooter().customMessage(getString(R.string.started)))
         val snackbar =
-            Snackbar.make(binding.startRideButton, ridesDB.getCurrentScooter().toString(), Snackbar.LENGTH_LONG)
+            Snackbar.make(
+                binding.startRideButton,
+                ridesDB.getCurrentScooter().customMessage(getString(R.string.started)),
+                Snackbar.LENGTH_LONG
+            )
         snackbar.show()
     }
+
 }

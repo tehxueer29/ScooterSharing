@@ -51,7 +51,7 @@
         android:id="@+id/update_ride_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/update_ride_button"
+        android:text="@string/update_ride"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/scooterLocation"
         app:layout_constraintTop_toBottomOf="@+id/scooterLocation" />

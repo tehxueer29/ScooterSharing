@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import dk.itu.moapd.scootersharing.xute.databinding.FragmentUpdateRideBinding
 
@@ -56,14 +57,22 @@ class UpdateRideFragment : Fragment() {
             updateRideButton.setOnClickListener {
 
                 if (scooterLocation.text.isNotEmpty()) {
-                    // Update the object attributes
-                    val location = scooterLocation.text.toString().trim()
-                    ridesDB.updateCurrentScooter(location)
+                    MaterialAlertDialogBuilder(requireContext())
+                        .setTitle(getString(R.string.update_ride))
+                        .setMessage(getString(R.string.alert_supporting_text))
+                        .setNeutralButton(getString(R.string.cancel)) { _, _ ->
+                        }
+                        .setPositiveButton(getString(R.string.accept)) { _, _ ->
+                            // Update the object attributes
+                            val location = scooterLocation.text.toString().trim()
+                            ridesDB.updateCurrentScooter(location)
 
-                    // Reset the text fields and update the UI.
-                    scooterLocation.text.clear()
+                            // Reset the text fields and update the UI.
+                            scooterLocation.text.clear()
 
-                    showMessage()
+                            showMessage()
+                        }
+                        .show()
                 }
             }
         }
@@ -74,11 +83,11 @@ class UpdateRideFragment : Fragment() {
     private fun showMessage() {
         val imm = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
         imm?.hideSoftInputFromWindow(binding.updateRideButton.windowToken, 0)
-        Log.d(TAG, ridesDB.getCurrentScooter().toString())
+        Log.d(TAG, ridesDB.getCurrentScooter().customMessage(getString(R.string.updated)))
         val snackbar =
             Snackbar.make(
                 binding.updateRideButton,
-                ridesDB.getCurrentScooter().toString(),
+                ridesDB.getCurrentScooter().customMessage(getString(R.string.updated)),
                 Snackbar.LENGTH_LONG
             )
         snackbar.show()

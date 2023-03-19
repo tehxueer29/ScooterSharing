@@ -2,16 +2,19 @@
     <string name="app_name">Scooter Sharing</string>
     <string name="name">Enter the scooter name</string>
     <string name="location">The current scooter location</string>
-    <string name="start_ride_button">Start Ride</string>
-    <string name="update_ride_button">Update Ride</string>
+    <string name="start_ride">Start Ride</string>
+    <string name="update_ride">Update Ride</string>
+    <string name="delete_ride">Delete Ride</string>
     <string name="list_ride_button">List Rides</string>
     <string name="scooter_name">%s</string>
     <string name="scooter_location">%s</string>
     <string name="scooter_time">%s</string>
     <string name="fragment_alert">Alert Dialog</string>
-    <string name="alert_title">Alert Title</string>
     <string name="alert_supporting_text">Do you want to perform this action?</string>
     <string name="cancel">Cancel</string>
-    <string name="decline">Decline</string>
     <string name="accept">Accept</string>
+    <string name="started">started</string>
+    <string name="updated">updated</string>
+    <string name="ride_deleted">Ride deleted</string>
+
 </resources>
