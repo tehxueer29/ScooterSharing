@@ -1,4 +1,4 @@
-package dk.itu.moapd.scootersharing.xute
+package dk.itu.moapd.scootersharing.xute.models
 
 import android.content.Context
 import java.util.Random

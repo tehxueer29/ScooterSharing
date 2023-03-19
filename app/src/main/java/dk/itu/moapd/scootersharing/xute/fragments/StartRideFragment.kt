@@ -1,4 +1,4 @@
-package dk.itu.moapd.scootersharing.xute
+package dk.itu.moapd.scootersharing.xute.fragments
 
 import android.content.Context
 import android.os.Bundle
@@ -10,6 +10,8 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import dk.itu.moapd.scootersharing.xute.R
+import dk.itu.moapd.scootersharing.xute.models.RidesDB
 import dk.itu.moapd.scootersharing.xute.databinding.FragmentStartRideBinding
 
 /**

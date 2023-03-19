@@ -20,7 +20,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-package dk.itu.moapd.scootersharing.xute;
+package dk.itu.moapd.scootersharing.xute.models;
 
 import java.text.SimpleDateFormat
 data class Scooter (val name: String,

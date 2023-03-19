@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/mainFragment"
-        android:name="dk.itu.moapd.scootersharing.xute.MainFragment"
+        android:name="dk.itu.moapd.scootersharing.xute.fragments.MainFragment"
         android:label="fragment_main"
         tools:layout="@layout/fragment_main" >
         <action
@@ -19,12 +19,12 @@
     </fragment>
     <fragment
         android:id="@+id/startRideFragment"
-        android:name="dk.itu.moapd.scootersharing.xute.StartRideFragment"
+        android:name="dk.itu.moapd.scootersharing.xute.fragments.StartRideFragment"
         android:label="fragment_start_ride"
         tools:layout="@layout/fragment_start_ride" />
     <fragment
         android:id="@+id/updateRideFragment2"
-        android:name="dk.itu.moapd.scootersharing.xute.UpdateRideFragment"
+        android:name="dk.itu.moapd.scootersharing.xute.fragments.UpdateRideFragment"
         android:label="fragment_update_ride"
         tools:layout="@layout/fragment_update_ride" />
 </navigation>

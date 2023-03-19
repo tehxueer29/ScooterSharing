@@ -1,10 +1,12 @@
-package dk.itu.moapd.scootersharing.xute
+package dk.itu.moapd.scootersharing.xute.adapters
 
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageButton
 import androidx.recyclerview.widget.RecyclerView
+import dk.itu.moapd.scootersharing.xute.R
+import dk.itu.moapd.scootersharing.xute.models.Scooter
 import dk.itu.moapd.scootersharing.xute.databinding.ListRidesBinding
 
 /**

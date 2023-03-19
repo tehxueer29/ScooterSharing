@@ -21,24 +21,21 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dk.itu.moapd.scootersharing.xute
+package dk.itu.moapd.scootersharing.xute.fragments
 
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
-import androidx.core.graphics.Insets
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.isVisible
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import dk.itu.moapd.scootersharing.xute.R
+import dk.itu.moapd.scootersharing.xute.models.RidesDB
+import dk.itu.moapd.scootersharing.xute.adapters.CustomArrayAdapter
 import dk.itu.moapd.scootersharing.xute.databinding.FragmentMainBinding
 
 /**

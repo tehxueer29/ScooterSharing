@@ -16,5 +16,7 @@
     <string name="started">started</string>
     <string name="updated">updated</string>
     <string name="ride_deleted">Ride deleted</string>
+    <string name="sign_in">Sign In</string>
+    <string name="sign_out">Sign Out</string>
 
 </resources>
