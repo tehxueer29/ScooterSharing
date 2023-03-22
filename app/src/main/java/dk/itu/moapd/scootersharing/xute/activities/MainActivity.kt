@@ -24,6 +24,7 @@ SOFTWARE.
 package dk.itu.moapd.scootersharing.xute.activities
 
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.navigation.fragment.NavHostFragment
@@ -42,13 +43,12 @@ class MainActivity : AppCompatActivity() {
      */
     private lateinit var mainBinding: ActivityMainBinding
 
+
     /**
      * A set of static attributes used in this activity class.
      */
     companion object {
         private val TAG = MainActivity::class.qualifiedName
-//        lateinit var ridesDB: RidesDB
-//        private lateinit var adapter: CustomArrayAdapter
     }
 
     /**
@@ -80,6 +80,23 @@ class MainActivity : AppCompatActivity() {
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.fragment_container_view) as NavHostFragment
         val navController = navHostFragment.navController
+    }
+
+    /**
+     * Called after `onCreate()` method; or after `onRestart()` method when the activity had been
+     * stopped, but is now again being displayed to the user. It will usually be followed by
+     * `onResume()`. This is a good place to begin drawing visual elements, running animations, etc.
+     *
+     * You can call `finish()` from within this function, in which case `onStop()` will be
+     * immediately called after `onStart()` without the lifecycle transitions in-between
+     * (`onResume()`, `onPause()`, etc) executing.
+     *
+     * <em>Derived classes must call through to the super class's implementation of this method. If
+     * they do not, an exception will be thrown.</em>
+     */
+    override fun onStart() {
+        super.onStart()
+
     }
 }
 

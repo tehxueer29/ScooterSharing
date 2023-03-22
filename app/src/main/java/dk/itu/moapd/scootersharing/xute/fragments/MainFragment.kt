@@ -23,6 +23,7 @@ SOFTWARE.
 
 package dk.itu.moapd.scootersharing.xute.fragments
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -31,9 +32,14 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuth
+import com.google.android.gms.tasks.OnCompleteListener
 import dk.itu.moapd.scootersharing.xute.R
+import dk.itu.moapd.scootersharing.xute.activities.LoginActivity
+import dk.itu.moapd.scootersharing.xute.activities.MainActivity
 import dk.itu.moapd.scootersharing.xute.models.RidesDB
 import dk.itu.moapd.scootersharing.xute.adapters.CustomArrayAdapter
 import dk.itu.moapd.scootersharing.xute.databinding.FragmentMainBinding
@@ -59,9 +65,11 @@ class MainFragment : Fragment() {
      * to all views that have an ID in the corresponding layout.
      */
     private lateinit var binding: FragmentMainBinding
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
+
+    /**
+     * The entry point of the Firebase Authentication SDK.
+     */
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -70,11 +78,27 @@ class MainFragment : Fragment() {
         binding = FragmentMainBinding.inflate(
             layoutInflater, container, false
         )
+
+        // Initialize Firebase Auth.
+        auth = FirebaseAuth.getInstance()
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        Log.d(TAG, auth.currentUser.toString()+"CHECKING")
+
+        // Check if the user is not logged and redirect her/him to the LoginActivity.
+        if (auth.currentUser == null)
+            startLoginActivity()
+
+        // Set the user information.
+        val user = auth.currentUser
+        binding.description.text = getString(
+            R.string.firebase_user_description,
+            if (user?.email!!.isEmpty()) user.phoneNumber else user.email
+        )
 
         // Singleton to share an object between the app activities .
         ridesDB = RidesDB.get(requireContext())
@@ -101,6 +125,15 @@ class MainFragment : Fragment() {
             listRideButton.setOnClickListener {
                 // Define the list view adapter.
                 updateList(view)
+            }
+
+            signOutButton.setOnClickListener {
+                Log.d(TAG, "signing out")
+                auth.signOut()
+                Log.d(TAG, auth.currentUser.toString()) //null
+                startLoginActivity()
+                Log.d(TAG, auth.currentUser.toString()) //null
+
             }
 
             adapter.setOnItemClickListener {
@@ -142,7 +175,8 @@ class MainFragment : Fragment() {
                 Snackbar.LENGTH_LONG
             )
         snackbar.show()
-
     }
 
+    private fun startLoginActivity() {
+        findNavController().navigate(R.id.action_mainFragment_to_updateRideFragment2)
 }

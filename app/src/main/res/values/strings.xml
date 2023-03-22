@@ -18,5 +18,12 @@
     <string name="ride_deleted">Ride deleted</string>
     <string name="sign_in">Sign In</string>
     <string name="sign_out">Sign Out</string>
+    <string name="action_sign_out">Sign out</string>
+    <string name="content_description_sign_out">Sign out</string>
+    <string name="content_description_image">Image</string>
+    <string name="firebase_authentication">Firebase\nAuthentication</string>
+    <string name="firebase_user_description">You are logged in as %s.</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>
