@@ -23,7 +23,6 @@ SOFTWARE.
 
 package dk.itu.moapd.scootersharing.xute.fragments
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -32,14 +31,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
-import com.google.android.gms.tasks.OnCompleteListener
 import dk.itu.moapd.scootersharing.xute.R
-import dk.itu.moapd.scootersharing.xute.activities.LoginActivity
-import dk.itu.moapd.scootersharing.xute.activities.MainActivity
 import dk.itu.moapd.scootersharing.xute.models.RidesDB
 import dk.itu.moapd.scootersharing.xute.adapters.CustomArrayAdapter
 import dk.itu.moapd.scootersharing.xute.databinding.FragmentMainBinding
@@ -87,11 +82,10 @@ class MainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        Log.d(TAG, auth.currentUser.toString()+"CHECKING")
+        Log.d(TAG, auth.currentUser.toString() + "CHECKING")
 
         // Check if the user is not logged and redirect her/him to the LoginActivity.
-        if (auth.currentUser == null)
-            startLoginActivity()
+        if (auth.currentUser == null) startLoginFragment()
 
         // Set the user information.
         val user = auth.currentUser
@@ -131,7 +125,7 @@ class MainFragment : Fragment() {
                 Log.d(TAG, "signing out")
                 auth.signOut()
                 Log.d(TAG, auth.currentUser.toString()) //null
-                startLoginActivity()
+                startLoginFragment()
                 Log.d(TAG, auth.currentUser.toString()) //null
 
             }
@@ -140,18 +134,15 @@ class MainFragment : Fragment() {
                 //here you have your UserModel in your fragment, do whatever you want to with it
                 Log.d(TAG, "clicked!MAINFRAG")
 
-                MaterialAlertDialogBuilder(requireContext())
-                    .setTitle(getString(R.string.delete_ride))
+                MaterialAlertDialogBuilder(requireContext()).setTitle(getString(R.string.delete_ride))
                     .setMessage(getString(R.string.alert_supporting_text))
                     .setNeutralButton(getString(R.string.cancel)) { _, _ ->
-                    }
-                    .setPositiveButton(getString(R.string.accept)) { _, _ ->
+                    }.setPositiveButton(getString(R.string.accept)) { _, _ ->
                         ridesDB.deleteScooter(it.timestamp)
                         // Define the list view adapter.
                         updateList(view)
                         showMessage()
-                    }
-                    .show()
+                    }.show()
             }
 
         }
@@ -168,15 +159,13 @@ class MainFragment : Fragment() {
 
     private fun showMessage() {
         Log.d(TAG, getString(R.string.started))
-        val snackbar =
-            Snackbar.make(
-                binding.startRideButton,
-                getString(R.string.ride_deleted),
-                Snackbar.LENGTH_LONG
-            )
+        val snackbar = Snackbar.make(
+            binding.startRideButton, getString(R.string.ride_deleted), Snackbar.LENGTH_LONG
+        )
         snackbar.show()
     }
 
-    private fun startLoginActivity() {
-        findNavController().navigate(R.id.action_mainFragment_to_updateRideFragment2)
+    private fun startLoginFragment() {
+        findNavController().navigate(R.id.action_mainFragment_to_loginFragment)
+    }
 }

@@ -16,6 +16,9 @@
         <action
             android:id="@+id/action_mainFragment_to_updateRideFragment2"
             app:destination="@id/updateRideFragment2" />
+        <action
+            android:id="@+id/action_mainFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
     </fragment>
     <fragment
         android:id="@+id/startRideFragment"
@@ -27,4 +30,8 @@
         android:name="dk.itu.moapd.scootersharing.xute.fragments.UpdateRideFragment"
         android:label="fragment_update_ride"
         tools:layout="@layout/fragment_update_ride" />
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="dk.itu.moapd.scootersharing.xute.fragments.LoginFragment"
+        android:label="LoginFragment" />
 </navigation>
