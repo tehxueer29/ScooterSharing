@@ -24,7 +24,6 @@ SOFTWARE.
 package dk.itu.moapd.scootersharing.xute.activities
 
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.navigation.fragment.NavHostFragment
@@ -99,4 +98,3 @@ class MainActivity : AppCompatActivity() {
 
     }
 }
-
