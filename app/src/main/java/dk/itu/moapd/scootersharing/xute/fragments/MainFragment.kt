@@ -89,10 +89,12 @@ class MainFragment : Fragment() {
 
         // Set the user information.
         val user = auth.currentUser
-        binding.description.text = getString(
-            R.string.firebase_user_description,
-            if (user?.email!!.isEmpty()) user.phoneNumber else user.email
-        )
+        if (user != null) {
+            binding.description.text = getString(
+                R.string.firebase_user_description,
+                user.email
+            )
+        }
 
         // Singleton to share an object between the app activities .
         ridesDB = RidesDB.get(requireContext())
