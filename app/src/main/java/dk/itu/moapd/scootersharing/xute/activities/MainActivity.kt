@@ -46,9 +46,9 @@ class MainActivity : AppCompatActivity() {
     /**
      * A set of static attributes used in this activity class.
      */
-    companion object {
-        private val TAG = MainActivity::class.qualifiedName
-    }
+//    companion object {
+//        private val TAG = MainActivity::class.qualifiedName
+//    }
 
     /**
      * Called when the activity is starting. This is where most initialization should go: calling

@@ -23,9 +23,9 @@ SOFTWARE.
 package dk.itu.moapd.scootersharing.xute.models;
 
 import java.text.SimpleDateFormat
-data class Scooter (val name: String,
-                    var location: String,
-                    var timestamp: Long = System.currentTimeMillis()) {
+data class Scooter (val name: String? = null,
+                    var location: String? = null,
+                    var timestamp: Long? = System.currentTimeMillis()) {
 
     fun getTimestampToString(): String {
         val timeDateFormat = SimpleDateFormat("dd/MM/yyyy hh:mm")

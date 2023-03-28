@@ -30,27 +30,34 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 import dk.itu.moapd.scootersharing.xute.R
-import dk.itu.moapd.scootersharing.xute.models.RidesDB
-import dk.itu.moapd.scootersharing.xute.adapters.CustomArrayAdapter
+import dk.itu.moapd.scootersharing.xute.adapters.ItemClickListener
+import dk.itu.moapd.scootersharing.xute.adapters.RealtimeAdapter
+import dk.itu.moapd.scootersharing.xute.adapters.SwipeToDeleteCallback
 import dk.itu.moapd.scootersharing.xute.databinding.FragmentMainBinding
+import dk.itu.moapd.scootersharing.xute.models.Scooter
 
 /**
  * A simple [Fragment] subclass.
  * Use the [MainFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class MainFragment : Fragment() {
+class MainFragment : Fragment(), ItemClickListener {
 
     // A set of private constants used in this class .
     companion object {
         private val TAG = MainFragment::class.qualifiedName
-        lateinit var ridesDB: RidesDB
-        private lateinit var adapter: CustomArrayAdapter
+        private lateinit var adapter: RealtimeAdapter
     }
 
     /**
@@ -66,6 +73,12 @@ class MainFragment : Fragment() {
      */
     private lateinit var auth: FirebaseAuth
 
+    /**
+     * A Firebase reference represents a particular location in your Database and can be used for
+     * reading or writing data to that Database location.
+     */
+    private lateinit var database: DatabaseReference
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
@@ -76,6 +89,28 @@ class MainFragment : Fragment() {
 
         // Initialize Firebase Auth.
         auth = FirebaseAuth.getInstance()
+        database = Firebase.database("https://moapd-2023-478a9-default-rtdb.europe-west1.firebasedatabase.app/").reference
+
+        // Create the search query.
+        auth.currentUser?.let {
+            val query = database
+                .child("scooter")
+
+            // A class provide by FirebaseUI to make a query in the database to fetch appropriate data.
+            val options = FirebaseRecyclerOptions.Builder<Scooter>()
+                .setQuery(query, Scooter::class.java)
+                .setLifecycleOwner(this)
+                .build()
+
+            // Create the custom adapter to bind a list of dummy objects.
+            adapter = RealtimeAdapter(this, options)
+
+            with(binding.contentList) {
+                recyclerView.layoutManager = LinearLayoutManager(context)
+                recyclerView.adapter = adapter
+            }
+        }
+
         return binding.root
     }
 
@@ -95,15 +130,6 @@ class MainFragment : Fragment() {
                 user.email
             )
         }
-
-        // Singleton to share an object between the app activities .
-        ridesDB = RidesDB.get(requireContext())
-
-//        get all rides object
-        val data = ridesDB.getRidesList()
-
-        // Create the custom adapter to populate a list of dummy objects.
-        adapter = CustomArrayAdapter(data)
 
         // makes all variables start with [mainBinding.]
         with(binding) {
@@ -132,31 +158,41 @@ class MainFragment : Fragment() {
 
             }
 
-            adapter.setOnItemClickListener {
-                //here you have your UserModel in your fragment, do whatever you want to with it
-                Log.d(TAG, "clicked!MAINFRAG")
+//            adapter.setOnItemClickListener {
+//                //here you have your UserModel in your fragment, do whatever you want to with it
+//                Log.d(TAG, "clicked!MAINFRAG")
+//
+//                MaterialAlertDialogBuilder(requireContext()).setTitle(getString(R.string.delete_ride))
+//                    .setMessage(getString(R.string.alert_supporting_text))
+//                    .setNeutralButton(getString(R.string.cancel)) { _, _ ->
+//                    }.setPositiveButton(getString(R.string.accept)) { _, _ ->
+////                        ridesDB.deleteScooter(it.timestamp)
+////                        adapter.getRef("scooter/timestamp").removeValue()
+//                        Log.d(TAG, it.timestamp.toString())
+//                        database.child("scooter/${it.timestamp}").removeValue()
+//                        showMessage()
+//                    }.show()
+//            }
 
-                MaterialAlertDialogBuilder(requireContext()).setTitle(getString(R.string.delete_ride))
-                    .setMessage(getString(R.string.alert_supporting_text))
-                    .setNeutralButton(getString(R.string.cancel)) { _, _ ->
-                    }.setPositiveButton(getString(R.string.accept)) { _, _ ->
-                        ridesDB.deleteScooter(it.timestamp)
-                        // Define the list view adapter.
-                        updateList(view)
-                        showMessage()
-                    }.show()
+            // Adding the swipe option.
+            val swipeHandler = object : SwipeToDeleteCallback() {
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                    super.onSwiped(viewHolder, direction)
+                    adapter.getRef(viewHolder.absoluteAdapterPosition).removeValue()
+                }
             }
+            val itemTouchHelper = ItemTouchHelper(swipeHandler)
+            itemTouchHelper.attachToRecyclerView(contentList.recyclerView)
 
         }
 
     }
 
     private fun updateList(view: View) {
-        with(binding) {
-            contentList.recyclerView.layoutManager = LinearLayoutManager(context)
-            contentList.recyclerView.adapter = adapter
+        with(binding.contentList) {
+            recyclerView.layoutManager = LinearLayoutManager(context)
+            recyclerView.adapter = adapter
         }
-
     }
 
     private fun showMessage() {
@@ -170,4 +206,9 @@ class MainFragment : Fragment() {
     private fun startLoginFragment() {
         findNavController().navigate(R.id.action_mainFragment_to_loginFragment)
     }
+
+    override fun onItemClickListener(scooter: Scooter, position: Int) {
+        fun onItemClickListener(scooter: Scooter, position: Int) {}
+    }
+
 }
