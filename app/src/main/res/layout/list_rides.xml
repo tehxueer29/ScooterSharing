@@ -54,11 +54,11 @@
                 app:layout_constraintBaseline_toBaselineOf="@+id/scooter_location"
                 app:layout_constraintStart_toEndOf="@+id/scooter_location" />
 
-            <ImageButton
+            <ImageView
                 android:id="@+id/delete_ride_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/delete"
+                android:src="@drawable/delete_sweep"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"

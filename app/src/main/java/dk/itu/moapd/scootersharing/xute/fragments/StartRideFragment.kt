@@ -10,9 +10,15 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 import dk.itu.moapd.scootersharing.xute.R
 import dk.itu.moapd.scootersharing.xute.models.RidesDB
 import dk.itu.moapd.scootersharing.xute.databinding.FragmentStartRideBinding
+import dk.itu.moapd.scootersharing.xute.models.Scooter
+import dk.itu.moapd.scootersharing.xute.utils.DATABASE_URL
 
 /**
  * A simple [Fragment] subclass.
@@ -22,11 +28,22 @@ import dk.itu.moapd.scootersharing.xute.databinding.FragmentStartRideBinding
 class StartRideFragment : Fragment() {
     private lateinit var binding: FragmentStartRideBinding
 
+    /**
+     * The entry point of the Firebase Authentication SDK.
+     */
+    private lateinit var auth: FirebaseAuth
+
+
+    /**
+     * A Firebase reference represents a particular location in your Database and can be used for
+     * reading or writing data to that Database location.
+     */
+    private lateinit var database: DatabaseReference
 
     // A set of private constants used in this class .
     companion object {
         private val TAG = StartRideFragment::class.qualifiedName
-        lateinit var ridesDB: RidesDB
+//        lateinit var ridesDB: RidesDB
     }
 
     override fun onCreateView(
@@ -36,16 +53,16 @@ class StartRideFragment : Fragment() {
         binding = FragmentStartRideBinding.inflate(
             layoutInflater, container, false
         )
+        // Initialize Firebase Auth.
+        auth = FirebaseAuth.getInstance()
+        database =
+            Firebase.database(DATABASE_URL).reference
+
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // Singleton to share an object between the app activities .
-        ridesDB = RidesDB.get(requireContext())
-
-//        get all rides object
-        val data = ridesDB.getRidesList()
 
         with(binding) {
             // The start ride button listener.
@@ -61,7 +78,23 @@ class StartRideFragment : Fragment() {
                             // Update the object attributes
                             val name = scooterName.text.toString().trim()
                             val location = scooterLocation.text.toString().trim()
-                            ridesDB.addScooter(name, location)
+
+                            // In the case of authenticated user, create a new unique key for the object in
+                            // the database.
+                            auth.currentUser?.let { user ->
+                                val uid = database.child("scooter")
+                                    .child(user.uid)
+                                    .push()
+                                    .key
+
+                                // Insert the object in the database.
+                                uid?.let {
+                                    database.child("scooter")
+                                        .child(user.uid)
+                                        .child(it)
+                                        .setValue(Scooter(name, location))
+                                }
+                            }
 
                             // Reset the text fields and update the UI.
                             scooterName.text.clear()
@@ -81,11 +114,10 @@ class StartRideFragment : Fragment() {
     private fun showMessage() {
         val imm = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
         imm?.hideSoftInputFromWindow(binding.startRideButton.windowToken, 0)
-        Log.d(TAG, ridesDB.getCurrentScooter().customMessage(getString(R.string.started)))
         val snackbar =
             Snackbar.make(
                 binding.startRideButton,
-                ridesDB.getCurrentScooter().customMessage(getString(R.string.started)),
+                "Ride Started",
                 Snackbar.LENGTH_LONG
             )
         snackbar.show()

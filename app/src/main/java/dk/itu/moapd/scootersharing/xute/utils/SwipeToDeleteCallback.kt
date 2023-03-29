@@ -18,11 +18,10 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package dk.itu.moapd.scootersharing.xute.adapters
+package dk.itu.moapd.scootersharing.xute.utils
 
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.snackbar.Snackbar
 
 
 /**
@@ -73,9 +72,9 @@ open class SwipeToDeleteCallback :
      *      well.
      */
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-        Snackbar
-            .make(viewHolder.itemView, "Item deleted successfully", Snackbar.LENGTH_SHORT)
-            .show()
+//        Snackbar
+//            .make(viewHolder.itemView, "Item deleted successfully", Snackbar.LENGTH_SHORT)
+//            .show()
     }
 
 }

@@ -20,14 +20,13 @@
  */
 package dk.itu.moapd.scootersharing.xute.adapters
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.database.FirebaseRecyclerAdapter
 import com.firebase.ui.database.FirebaseRecyclerOptions
-import dk.itu.moapd.scootersharing.xute.R
 import dk.itu.moapd.scootersharing.xute.databinding.ListRidesBinding
+import dk.itu.moapd.scootersharing.xute.interfaces.ItemClickListener
 import dk.itu.moapd.scootersharing.xute.models.Scooter
 
 

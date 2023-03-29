@@ -18,7 +18,7 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package dk.itu.moapd.scootersharing.xute.adapters
+package dk.itu.moapd.scootersharing.xute.interfaces
 
 import dk.itu.moapd.scootersharing.xute.models.Scooter
 

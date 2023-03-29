@@ -34,6 +34,8 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.database.FirebaseRecyclerOptions
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
@@ -41,11 +43,12 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import dk.itu.moapd.scootersharing.xute.R
-import dk.itu.moapd.scootersharing.xute.adapters.ItemClickListener
+import dk.itu.moapd.scootersharing.xute.interfaces.ItemClickListener
 import dk.itu.moapd.scootersharing.xute.adapters.RealtimeAdapter
-import dk.itu.moapd.scootersharing.xute.adapters.SwipeToDeleteCallback
+import dk.itu.moapd.scootersharing.xute.utils.SwipeToDeleteCallback
 import dk.itu.moapd.scootersharing.xute.databinding.FragmentMainBinding
 import dk.itu.moapd.scootersharing.xute.models.Scooter
+import dk.itu.moapd.scootersharing.xute.utils.DATABASE_URL
 
 /**
  * A simple [Fragment] subclass.
@@ -89,12 +92,15 @@ class MainFragment : Fragment(), ItemClickListener {
 
         // Initialize Firebase Auth.
         auth = FirebaseAuth.getInstance()
-        database = Firebase.database("https://moapd-2023-478a9-default-rtdb.europe-west1.firebasedatabase.app/").reference
+        database =
+            Firebase.database(DATABASE_URL).reference
 
         // Create the search query.
         auth.currentUser?.let {
             val query = database
                 .child("scooter")
+                .child(it.uid)
+
 
             // A class provide by FirebaseUI to make a query in the database to fetch appropriate data.
             val options = FirebaseRecyclerOptions.Builder<Scooter>()
@@ -151,34 +157,32 @@ class MainFragment : Fragment(), ItemClickListener {
 
             signOutButton.setOnClickListener {
                 Log.d(TAG, "signing out")
+//                sign out from firebase
                 auth.signOut()
-                Log.d(TAG, auth.currentUser.toString()) //null
+
+//                sign out from google
+                val googleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                    .requestIdToken(getString(R.string.default_web_client_id))
+                    .requestEmail()
+                    .build()
+                val googleSignInClient = GoogleSignIn.getClient(requireActivity(), googleSignInOptions)
+                googleSignInClient.signOut()
+
                 startLoginFragment()
-                Log.d(TAG, auth.currentUser.toString()) //null
-
             }
-
-//            adapter.setOnItemClickListener {
-//                //here you have your UserModel in your fragment, do whatever you want to with it
-//                Log.d(TAG, "clicked!MAINFRAG")
-//
-//                MaterialAlertDialogBuilder(requireContext()).setTitle(getString(R.string.delete_ride))
-//                    .setMessage(getString(R.string.alert_supporting_text))
-//                    .setNeutralButton(getString(R.string.cancel)) { _, _ ->
-//                    }.setPositiveButton(getString(R.string.accept)) { _, _ ->
-////                        ridesDB.deleteScooter(it.timestamp)
-////                        adapter.getRef("scooter/timestamp").removeValue()
-//                        Log.d(TAG, it.timestamp.toString())
-//                        database.child("scooter/${it.timestamp}").removeValue()
-//                        showMessage()
-//                    }.show()
-//            }
 
             // Adding the swipe option.
             val swipeHandler = object : SwipeToDeleteCallback() {
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                    super.onSwiped(viewHolder, direction)
-                    adapter.getRef(viewHolder.absoluteAdapterPosition).removeValue()
+//                    super.onSwiped(viewHolder, direction)
+                    MaterialAlertDialogBuilder(requireContext()).setTitle(getString(R.string.delete_ride))
+                        .setMessage(getString(R.string.alert_supporting_text))
+                        .setNeutralButton(getString(R.string.cancel)) { _, _ ->
+                            updateList(view)
+                        }.setPositiveButton(getString(R.string.accept)) { _, _ ->
+                            adapter.getRef(viewHolder.absoluteAdapterPosition).removeValue()
+                            showMessage()
+                        }.show()
                 }
             }
             val itemTouchHelper = ItemTouchHelper(swipeHandler)
