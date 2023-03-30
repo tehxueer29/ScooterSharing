@@ -10,15 +10,14 @@ import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import dk.itu.moapd.scootersharing.xute.R
 import dk.itu.moapd.scootersharing.xute.activities.MainActivity
+import dk.itu.moapd.scootersharing.xute.utils.TAG
 
 /**
  * A simple [Fragment] subclass.
- * Use the [LoginFragment.newInstance] factory method to
+ * Use the [LoginFragment] factory method to
  * create an instance of this fragment.
  */
 class LoginFragment : Fragment() {
-    private val TAG = LoginFragment::class.qualifiedName
-
     /**
      * This object launches a new activity and receives back some result data.
      */
@@ -34,10 +33,6 @@ class LoginFragment : Fragment() {
         createSignInIntent()
 
     }
-    companion object {
-
-    }
-
     private fun createSignInIntent() {
 
         // Choose authentication providers.
@@ -70,11 +65,11 @@ class LoginFragment : Fragment() {
     private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
         if (result.resultCode == AppCompatActivity.RESULT_OK) {
             // Sign in success, update UI with the signed-in user's information.
-            Log.d(TAG,"User logged in the app.")
+            Log.d(TAG(),"User logged in the app.")
             startMainActivity()
         } else
         // If sign in fails, display a message to the user.
-            Log.d(TAG,"Authentication failed.")
+            Log.d(TAG(),"Authentication failed.")
     }
 
     /**

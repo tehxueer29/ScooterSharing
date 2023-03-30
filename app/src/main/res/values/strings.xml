@@ -23,7 +23,14 @@
     <string name="content_description_image">Image</string>
     <string name="firebase_authentication">Firebase\nAuthentication</string>
     <string name="firebase_user_description">You are logged in as %s.</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-
+    <string name="edit_name">Enter the location</string>
+    <string name="dialog_title">Adding new entry</string>
+    <string name="dialog_message">Create a new data in the database</string>
+    <string name="dialog_update_title">Update ride</string>
+    <string name="dialog_update_message">%s</string>
+    <string name="update_button">Update</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="Update_info">Hold down a ride to update it</string>
+    <string name="content_description_add">Add</string>
 </resources>

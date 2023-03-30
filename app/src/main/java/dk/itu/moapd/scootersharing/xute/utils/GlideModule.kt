@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Teh Xue Er
+ * Copyright (c) 2023 Fabricio Batista Narcizo
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
  * associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -18,23 +18,35 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package dk.itu.moapd.scootersharing.xute.interfaces
+package dk.itu.moapd.scootersharing.xute.utils
 
-import dk.itu.moapd.scootersharing.xute.models.Scooter
+import android.content.Context
+import com.bumptech.glide.Glide
+import com.bumptech.glide.Registry
+import com.bumptech.glide.annotation.GlideModule
+import com.bumptech.glide.module.AppGlideModule
+import com.firebase.ui.storage.images.FirebaseImageLoader
+import com.google.firebase.storage.StorageReference
+import java.io.InputStream
 
 
 /**
- * An interface to implements listener methods for `RecyclerView` items.
+ * Defines a set of dependencies and options to use when initializing Glide within an application.
  */
-interface ItemClickListener  {
+@GlideModule
+class GlideModule: AppGlideModule() {
 
     /**
-     * Implement this method to be executed when the user press an item in the `RecyclerView` for a
-     * long time.
+     * Registers a set of components to use when initializing Glide within an app when Glide's
+     * annotation processor is used.
      *
-     * @param scooter An instance of `Dummy` class.
-     * @param position The selected position in the `RecyclerView`.
+     * @param context The application context.
+     * @param glide The glide instance used to download the image from Google Drive.
+     * @param registry The registration instance.
      */
-    fun onItemClickListener(scooter: Scooter, position: Int)
+    override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
+        registry.append(StorageReference::class.java, InputStream::class.java,
+            FirebaseImageLoader.Factory())
+    }
 
 }

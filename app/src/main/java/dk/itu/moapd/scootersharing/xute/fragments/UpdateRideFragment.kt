@@ -10,9 +10,16 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.ktx.database
+import com.google.firebase.database.ktx.getValue
+import com.google.firebase.ktx.Firebase
 import dk.itu.moapd.scootersharing.xute.R
-import dk.itu.moapd.scootersharing.xute.models.RidesDB
 import dk.itu.moapd.scootersharing.xute.databinding.FragmentUpdateRideBinding
+import dk.itu.moapd.scootersharing.xute.models.Scooter
+import dk.itu.moapd.scootersharing.xute.utils.DATABASE_URL
+import dk.itu.moapd.scootersharing.xute.utils.TAG
 
 /**
  * A simple [Fragment] subclass.
@@ -28,12 +35,16 @@ class UpdateRideFragment : Fragment() {
      */
     private lateinit var binding: FragmentUpdateRideBinding
 
-    // A set of private constants used in this class .
-    companion object {
-        private val TAG = UpdateRideFragment::class.qualifiedName
-        lateinit var ridesDB: RidesDB
-    }
+    /**
+     * The entry point of the Firebase Authentication SDK.
+     */
+    private lateinit var auth: FirebaseAuth
 
+    /**
+     * A Firebase reference represents a particular location in your Database and can be used for
+     * reading or writing data to that Database location.
+     */
+    private lateinit var database: DatabaseReference
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -41,19 +52,39 @@ class UpdateRideFragment : Fragment() {
         binding = FragmentUpdateRideBinding.inflate(
             layoutInflater, container, false
         )
+
+        // Initialize Firebase Auth.
+        auth = FirebaseAuth.getInstance()
+        database =
+            Firebase.database(DATABASE_URL).reference
+
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // Singleton to share an object between the app activities .
-        ridesDB = RidesDB.get(requireContext())
-
-        //        get all rides object
-        val data = ridesDB.getRidesList()
 
         with(binding) {
-            scooterName.hint = ridesDB.getCurrentScooter().name
+//            scooterName.hint = ridesDB.getCurrentScooter().name
+            auth.currentUser?.let { it ->
+                database
+                    .child("scooter")
+                    .child(it.uid)
+                    .orderByChild("timestamp")
+                    .limitToLast(1)
+                    .get()
+                    .addOnSuccessListener {
+                        Log.i("firebase", "Got value ${it.getValue<Scooter>()}")
+                        Log.i("firebase", "Got value ${it.value}")
+//                        it.getValue<Scooter>()
+//                        val scooter = Scooter(it.value.key)
+//                        scooterName.hint = it.value
+
+                    }.addOnFailureListener {
+                        Log.e("firebase", "Error getting data", it)
+                    }
+            }
+
 
             // The update ride button listener.
             updateRideButton.setOnClickListener {
@@ -67,12 +98,14 @@ class UpdateRideFragment : Fragment() {
                         .setPositiveButton(getString(R.string.accept)) { _, _ ->
                             // Update the object attributes
                             val location = scooterLocation.text.toString().trim()
-                            ridesDB.updateCurrentScooter(location)
+//                            TODO
+//                            ridesDB.updateCurrentScooter(location)
 
                             // Reset the text fields and update the UI.
                             scooterLocation.text.clear()
 
-                            showMessage()
+//                            TODO
+//                            showMessage(scooter)
                         }
                         .show()
                 }
@@ -82,14 +115,13 @@ class UpdateRideFragment : Fragment() {
 
     /** Print a message in the ‘Logcat ‘ system and show snackbar message at bottom of user screen.
      */
-    private fun showMessage() {
+    private fun showMessage(scooter: Scooter) {
         val imm = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
         imm?.hideSoftInputFromWindow(binding.updateRideButton.windowToken, 0)
-        Log.d(TAG, ridesDB.getCurrentScooter().customMessage(getString(R.string.updated)))
         val snackbar =
             Snackbar.make(
                 binding.updateRideButton,
-                ridesDB.getCurrentScooter().customMessage(getString(R.string.updated)),
+                scooter.customMessage("updated"),
                 Snackbar.LENGTH_LONG
             )
         snackbar.show()

@@ -15,7 +15,6 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import dk.itu.moapd.scootersharing.xute.R
-import dk.itu.moapd.scootersharing.xute.models.RidesDB
 import dk.itu.moapd.scootersharing.xute.databinding.FragmentStartRideBinding
 import dk.itu.moapd.scootersharing.xute.models.Scooter
 import dk.itu.moapd.scootersharing.xute.utils.DATABASE_URL
@@ -33,19 +32,11 @@ class StartRideFragment : Fragment() {
      */
     private lateinit var auth: FirebaseAuth
 
-
     /**
      * A Firebase reference represents a particular location in your Database and can be used for
      * reading or writing data to that Database location.
      */
     private lateinit var database: DatabaseReference
-
-    // A set of private constants used in this class .
-    companion object {
-        private val TAG = StartRideFragment::class.qualifiedName
-//        lateinit var ridesDB: RidesDB
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
@@ -79,6 +70,8 @@ class StartRideFragment : Fragment() {
                             val name = scooterName.text.toString().trim()
                             val location = scooterLocation.text.toString().trim()
 
+                            val scooter = Scooter(name, location)
+
                             // In the case of authenticated user, create a new unique key for the object in
                             // the database.
                             auth.currentUser?.let { user ->
@@ -92,7 +85,7 @@ class StartRideFragment : Fragment() {
                                     database.child("scooter")
                                         .child(user.uid)
                                         .child(it)
-                                        .setValue(Scooter(name, location))
+                                        .setValue(scooter)
                                 }
                             }
 
@@ -100,7 +93,7 @@ class StartRideFragment : Fragment() {
                             scooterName.text.clear()
                             scooterLocation.text.clear()
 
-                            showMessage()
+                            showMessage(scooter)
                         }
                         .show()
 
@@ -111,13 +104,13 @@ class StartRideFragment : Fragment() {
 
     /** Print a message in the ‘Logcat ‘ system and show snackbar message at bottom of user screen.
      */
-    private fun showMessage() {
+    private fun showMessage(scooter: Scooter) {
         val imm = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
         imm?.hideSoftInputFromWindow(binding.startRideButton.windowToken, 0)
         val snackbar =
             Snackbar.make(
                 binding.startRideButton,
-                "Ride Started",
+                scooter.customMessage("started"),
                 Snackbar.LENGTH_LONG
             )
         snackbar.show()

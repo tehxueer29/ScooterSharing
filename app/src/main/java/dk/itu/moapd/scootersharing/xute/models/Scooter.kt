@@ -20,12 +20,17 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-package dk.itu.moapd.scootersharing.xute.models;
+package dk.itu.moapd.scootersharing.xute.models
 
 import java.text.SimpleDateFormat
-data class Scooter (val name: String? = null,
-                    var location: String? = null,
-                    var timestamp: Long? = System.currentTimeMillis()) {
+import java.util.Objects
+
+data class Scooter(
+    val name: String? = null,
+    var location: String? = null,
+    var timestamp: Long? = System.currentTimeMillis(),
+    var image: Objects? = null
+) {
 
     fun getTimestampToString(): String {
         val timeDateFormat = SimpleDateFormat("dd/MM/yyyy hh:mm")

@@ -40,8 +40,8 @@ const val DATABASE_URL =
 /**
  * Firebase Cloud Storage URL.
  */
-//const val BUCKET_URL =
-//    "gs://moapd-2023.appspot.com"
+const val BUCKET_URL =
+    "gs://moapd-2023-478a9.appspot.com"
 
 /**
  * My personalized base class for maintaining global application state. You can provide your own

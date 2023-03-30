@@ -20,14 +20,20 @@
  */
 package dk.itu.moapd.scootersharing.xute.adapters
 
+import android.media.Image
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.firebase.ui.database.FirebaseRecyclerAdapter
 import com.firebase.ui.database.FirebaseRecyclerOptions
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 import dk.itu.moapd.scootersharing.xute.databinding.ListRidesBinding
 import dk.itu.moapd.scootersharing.xute.interfaces.ItemClickListener
 import dk.itu.moapd.scootersharing.xute.models.Scooter
+import dk.itu.moapd.scootersharing.xute.utils.BUCKET_URL
 
 
 /**
@@ -54,6 +60,38 @@ class RealtimeAdapter(private val itemClickListener: ItemClickListener,
             binding.scooterName.text = scooter.name
             binding.scooterLocation.text = scooter.location
             binding.scooterTime.text = scooter.getTimestampToString()
+        }
+
+        /**
+         * This method binds the `ViewHolder` instance and more cleanly separate concerns between
+         * the view holder and the adapter.
+         *
+         * @param image The current `Image` instance.
+         */
+//        TODO
+        fun imgBind() {
+
+            // Get the public thumbnail URL.
+            val storage = Firebase.storage(BUCKET_URL)
+//            TODO
+//            val imageRef = storage.reference.child("${image.path}_thumbnail")
+            val imageRef = storage.reference.child("scooter_1.png")
+
+            // Clean the image UI component.
+            binding.imageView.setImageResource(0)
+
+            // Download and set an image into the ImageView.
+            imageRef.downloadUrl.addOnSuccessListener {
+                Glide.with(itemView.context)
+                    .load(it)
+                    .transition(DrawableTransitionOptions.withCrossFade())
+                    .centerCrop()
+                    .into(binding.imageView)
+            }
+
+            // Set the TextView visibility.
+//            binding.textView.text = image.createdAt?.toDateString()
+//            binding.textView.isVisible = displayDate
         }
 
     }
@@ -104,9 +142,9 @@ class RealtimeAdapter(private val itemClickListener: ItemClickListener,
      * @param holder The `ViewHolder` which should be updated to represent the contents of the item
      *      at the given position in the data set.
      * @param position The position of the item within the adapter's data set.
-     * @param dummy An instance of `Dummy` class.
+     * @param scooter An instance of `Dummy` class.
      */
-    override fun onBindViewHolder(holder: ViewHolder, position: Int, dummy: Scooter) {
+    override fun onBindViewHolder(holder: ViewHolder, position: Int, scooter: Scooter) {
 
         // Get element from your dataset at this position and replace the
         // contents of the view with that element.
@@ -114,11 +152,14 @@ class RealtimeAdapter(private val itemClickListener: ItemClickListener,
 
         // Bind the view holder with the selected `Dummy` data.
         holder.apply {
-            bind(dummy)
+            bind(scooter)
+//            TODO
+//            imgBind(scooter.image)
+            imgBind()
 
             // Listen for long clicks in the current item.
             itemView.setOnLongClickListener {
-                itemClickListener.onItemClickListener(dummy, position)
+                itemClickListener.onItemClickListener(scooter, position)
                 true
             }
         }

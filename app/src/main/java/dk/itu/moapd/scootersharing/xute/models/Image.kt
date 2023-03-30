@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Teh Xue Er
+ * Copyright (c) 2023 Fabricio Batista Narcizo
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
  * associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -18,23 +18,13 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package dk.itu.moapd.scootersharing.xute.interfaces
+package dk.itu.moapd.scootersharing.xute.models
 
-import dk.itu.moapd.scootersharing.xute.models.Scooter
+import com.google.firebase.database.IgnoreExtraProperties
 
 
 /**
- * An interface to implements listener methods for `RecyclerView` items.
+ * A model class with all parameters to represent a `Image` object in the database.
  */
-interface ItemClickListener  {
-
-    /**
-     * Implement this method to be executed when the user press an item in the `RecyclerView` for a
-     * long time.
-     *
-     * @param scooter An instance of `Dummy` class.
-     * @param position The selected position in the `RecyclerView`.
-     */
-    fun onItemClickListener(scooter: Scooter, position: Int)
-
-}
+@IgnoreExtraProperties
+data class Image(val url: String? = null, val path: String? = null, val createdAt: Long? = null)
