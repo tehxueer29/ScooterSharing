@@ -27,9 +27,9 @@
         tools:layout="@layout/fragment_start_ride" />
     <fragment
         android:id="@+id/updateRideFragment2"
-        android:name="dk.itu.moapd.scootersharing.xute.fragments.UpdateRideFragment"
+        android:name="dk.itu.moapd.scootersharing.xute.fragments.RideHistoryFragment"
         android:label="fragment_update_ride"
-        tools:layout="@layout/fragment_update_ride" />
+        tools:layout="@layout/fragment_ride_history" />
     <fragment
         android:id="@+id/loginFragment"
         android:name="dk.itu.moapd.scootersharing.xute.fragments.LoginFragment"

@@ -22,7 +22,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed" />
 
     <TextView
         android:id="@+id/description"
@@ -32,7 +33,7 @@
         android:maxLines="4"
         android:text="@string/firebase_user_description"
         android:textAppearance="?attr/textAppearanceCaption"
-        app:layout_constraintBottom_toTopOf="@+id/content_list"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
@@ -54,25 +55,36 @@
         android:id="@+id/update_ride_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/update_ride"
+        android:text="@string/ride_history"
         app:icon="@drawable/pencil"
-        app:layout_constraintBottom_toTopOf="@+id/list_ride_button"
+        app:layout_constraintBottom_toTopOf="@+id/sign_out_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/start_ride_button" />
 
-    <Button
-        android:id="@+id/list_ride_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/list_ride_button"
-        app:icon="@drawable/format_list_bulleted"
-        app:layout_constraintBottom_toTopOf="@+id/sign_out_button"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/update_ride_button" />
+    <!--    <Button-->
+    <!--        android:id="@+id/list_ride_button"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:text="@string/list_ride_button"-->
+    <!--        app:icon="@drawable/format_list_bulleted"-->
+    <!--        app:layout_constraintBottom_toTopOf="@+id/sign_out_button"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintHorizontal_bias="0.5"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        app:layout_constraintTop_toBottomOf="@+id/update_ride_button" />-->
+
+    <!--    <include-->
+    <!--        android:id="@+id/content_list"-->
+    <!--        layout="@layout/content_list"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="273dp"-->
+    <!--        app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintHorizontal_bias="0.5"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        app:layout_constraintTop_toBottomOf="@+id/description" />-->
 
     <Button
         android:id="@+id/sign_out_button"
@@ -84,18 +96,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/list_ride_button" />
-
-    <include
-        android:id="@+id/content_list"
-        layout="@layout/content_list"
-        android:layout_width="match_parent"
-        android:layout_height="273dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/description" />
+        app:layout_constraintTop_toBottomOf="@+id/update_ride_button" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/floating_action_button"

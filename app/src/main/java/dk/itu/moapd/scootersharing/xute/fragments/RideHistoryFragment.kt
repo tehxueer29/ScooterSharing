@@ -1,7 +1,6 @@
 package dk.itu.moapd.scootersharing.xute.fragments
 
 import android.content.Context
-import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -9,6 +8,7 @@ import android.graphics.Rect
 import android.media.ThumbnailUtils
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -17,43 +17,54 @@ import android.view.inputmethod.InputMethodManager
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
+import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
 import dk.itu.moapd.scootersharing.xute.R
 import dk.itu.moapd.scootersharing.xute.adapters.RealtimeAdapter
-import dk.itu.moapd.scootersharing.xute.databinding.FragmentStartRideBinding
+import dk.itu.moapd.scootersharing.xute.databinding.FragmentRideHistoryBinding
 import dk.itu.moapd.scootersharing.xute.interfaces.ItemClickListener
 import dk.itu.moapd.scootersharing.xute.models.Image
 import dk.itu.moapd.scootersharing.xute.models.Scooter
 import dk.itu.moapd.scootersharing.xute.utils.BUCKET_URL
 import dk.itu.moapd.scootersharing.xute.utils.DATABASE_URL
+import dk.itu.moapd.scootersharing.xute.utils.SwipeToDeleteCallback
+import dk.itu.moapd.scootersharing.xute.utils.TAG
 import java.io.File
 import java.io.FileOutputStream
 import java.util.*
 
 /**
  * A simple [Fragment] subclass.
- * Use the [StartRideFragment.newInstance] factory method to
+ * Use the [RideHistoryFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class StartRideFragment : Fragment(), ItemClickListener {
+class RideHistoryFragment : Fragment(), ItemClickListener {
 
-    // A set of private constants used in this class .
+    // A set of private constants used in this class.
     companion object {
         private lateinit var adapter: RealtimeAdapter
     }
 
-    private lateinit var binding: FragmentStartRideBinding
+    /**
+     * View binding is a feature that allows you to more easily write code that interacts with
+     * views. Once view binding is enabled in a module, it generates a binding class for each XML
+     * layout file present in that module. An instance of a binding class contains direct references
+     * to all views that have an ID in the corresponding layout.
+     */
+    private lateinit var binding: FragmentRideHistoryBinding
 
     /**
      * The entry point of the Firebase Authentication SDK.
@@ -72,21 +83,24 @@ class StartRideFragment : Fragment(), ItemClickListener {
     private lateinit var storage: FirebaseStorage
 
     /**
-     * This object launches a new activity and receives back some result data.
+     * An extension of `AlertDialog.Builder` to create custom dialogs using a Material theme (e.g.,
+     * Theme.MaterialComponents).
      */
-    private val galleryLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        galleryResult(result)
-    }
+    private lateinit var materialAlertDialogBuilder: MaterialAlertDialogBuilder
+
+    /**
+     * Inflates a custom Android layout used in the input dialog.
+     */
+    private lateinit var customAlertDialogView: View
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        binding = FragmentStartRideBinding.inflate(
+        binding = FragmentRideHistoryBinding.inflate(
             layoutInflater, container, false
         )
+
         // Initialize Firebase Auth.
         auth = FirebaseAuth.getInstance()
         database =
@@ -95,7 +109,9 @@ class StartRideFragment : Fragment(), ItemClickListener {
 // Create the search query.
         auth.currentUser?.let {
             val query = database
-                .child("scooter")
+                .child("rideHistory")
+                .child(it.uid)
+                .orderByChild("timestamp")
 
             // A class provide by FirebaseUI to make a query in the database to fetch appropriate data.
             val options = FirebaseRecyclerOptions.Builder<Scooter>()
@@ -128,6 +144,9 @@ class StartRideFragment : Fragment(), ItemClickListener {
                 recyclerView.adapter = adapter
             }
         }
+        // Create a MaterialAlertDialogBuilder instance.
+        materialAlertDialogBuilder = MaterialAlertDialogBuilder(requireActivity())
+
         return binding.root
     }
 
@@ -135,70 +154,108 @@ class StartRideFragment : Fragment(), ItemClickListener {
         super.onViewCreated(view, savedInstanceState)
 
         with(binding) {
-            // The start ride button listener.
-//            startRideButton.setOnClickListener {
-//                if (scooterName.text.isNotEmpty() && scooterLocation.text.isNotEmpty()) {
+//            scooterName.hint = ridesDB.getCurrentScooter().name
+            auth.currentUser?.let { it ->
+                database
+                    .child("scooter")
+                    .child(it.uid)
+                    .orderByChild("timestamp")
+                    .limitToLast(1)
+                    .get()
+                    .addOnSuccessListener {
+                        Log.i("firebase", "Got value ${it.getValue<Scooter>()}")
+                        Log.i("firebase", "Got value ${it.value}")
+//                        it.getValue<Scooter>()
+//                        val scooter = Scooter(it.value.key)
+//                        scooterName.hint = it.value
+
+                    }.addOnFailureListener {
+                        Log.e("firebase", "Error getting data", it)
+                    }
+            }
+// Adding the swipe option.
+            val swipeHandler = object : SwipeToDeleteCallback() {
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+//                    super.onSwiped(viewHolder, direction)
+                    MaterialAlertDialogBuilder(requireContext()).setTitle(getString(R.string.delete_ride))
+                        .setMessage(getString(R.string.alert_supporting_text))
+                        .setNeutralButton(getString(R.string.cancel)) { _, _ ->
+                            updateList()
+                        }.setPositiveButton(getString(R.string.accept)) { _, _ ->
+                            adapter.getRef(viewHolder.absoluteAdapterPosition).removeValue()
+                            showMessage()
+                        }.show()
+                }
+            }
+            val itemTouchHelper = ItemTouchHelper(swipeHandler)
+            itemTouchHelper.attachToRecyclerView(contentList.recyclerView)
+
+            // The update ride button listener.
+//            updateRideButton.setOnClickListener {
 //
+//                if (scooterLocation.text.isNotEmpty()) {
 //                    MaterialAlertDialogBuilder(requireContext())
-//                        .setTitle(getString(R.string.start_ride))
+//                        .setTitle(getString(R.string.update_ride))
 //                        .setMessage(getString(R.string.alert_supporting_text))
 //                        .setNeutralButton(getString(R.string.cancel)) { _, _ ->
 //                        }
 //                        .setPositiveButton(getString(R.string.accept)) { _, _ ->
 //                            // Update the object attributes
-//                            val name = scooterName.text.toString().trim()
 //                            val location = scooterLocation.text.toString().trim()
-//
-//                            val scooter = Scooter(name, location)
-//
-//                            val galleryIntent = Intent(Intent.ACTION_GET_CONTENT).apply {
-//                                type = "image/*"
-//                            }
-//                            galleryLauncher.launch(galleryIntent)
-//
-//                            // In the case of authenticated user, create a new unique key for the object in
-//                            // the database.
-//                            auth.currentUser?.let { user ->
-//                                val uid = database.child("rideHistory")
-//                                    .child(user.uid)
-//                                    .push()
-//                                    .key
-//
-//                                // Insert the object in the database.
-//                                uid?.let {
-//                                    database.child("rideHistory")
-//                                        .child(user.uid)
-//                                        .child(it)
-//                                        .setValue(scooter)
-//                                }
-//                            }
+////                            TODO
+////                            ridesDB.updateCurrentScooter(location)
 //
 //                            // Reset the text fields and update the UI.
-//                            scooterName.text.clear()
 //                            scooterLocation.text.clear()
 //
-//                            showMessage(scooter)
+////                            TODO
+////                            showMessage(scooter)
 //                        }
 //                        .show()
-//
 //                }
 //            }
         }
     }
 
-    /** Print a message in the ‘Logcat ‘ system and show snackbar message at bottom of user screen.
+    override fun onItemClickListener(scooter: Scooter, position: Int) {
+        // Inflate Custom alert dialog view
+        customAlertDialogView = LayoutInflater.from(requireActivity())
+            .inflate(R.layout.dialog_add_data, binding.root, false)
+
+        // Launching the custom alert dialog
+        launchUpdateAlertDialog(scooter, position)
+    }
+
+    /**
+     * Building the update alert dialog using the `MaterialAlertDialogBuilder` instance. This method
+     * shows a dialog with a single edit text. The user can type a name and add it to the text file
+     * dataset or cancel the operation.
+     *
+     * @param scooter An instance of `Dummy` class.
      */
-//    private fun showMessage(scooter: Scooter) {
-//        val imm = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
-//        imm?.hideSoftInputFromWindow(binding.startRideButton.windowToken, 0)
-//        val snackbar =
-//            Snackbar.make(
-//                binding.startRideButton,
-//                scooter.customMessage("started"),
-//                Snackbar.LENGTH_LONG
-//            )
-//        snackbar.show()
-//    }
+    private fun launchUpdateAlertDialog(scooter: Scooter, position: Int) {
+        // Get the edit text component.
+        val editTextLocation = customAlertDialogView
+            .findViewById<TextInputEditText>(R.id.edit_text_name)
+        editTextLocation?.setText(scooter.location)
+
+        materialAlertDialogBuilder.setView(customAlertDialogView)
+            .setTitle(getString(R.string.dialog_update_title))
+            .setMessage("You are updating ${scooter.name}'s location")
+            .setPositiveButton(getString(R.string.update_button)) { dialog, _ ->
+                val location = editTextLocation?.text.toString()
+                if (location.isNotEmpty()) {
+                    scooter.location = location
+                    scooter.timestamp = System.currentTimeMillis()
+                    adapter.getRef(position).setValue(scooter)
+                }
+                dialog.dismiss()
+            }
+            .setNegativeButton(getString(R.string.cancel_button)) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
 
     /**
      * When the second activity finishes (i.e., the photo gallery intent), it returns a result to
@@ -236,7 +293,7 @@ class StartRideFragment : Fragment(), ItemClickListener {
         thumbnail: StorageReference
     ) {
         // Code for showing progress bar while uploading.
-//        binding.contentList.progressBar.visibility = View.VISIBLE
+        binding.contentList.progressBar.visibility = View.VISIBLE
 
         // Upload the original image.
         image.putFile(uri).addOnSuccessListener { imageUrl ->
@@ -247,7 +304,7 @@ class StartRideFragment : Fragment(), ItemClickListener {
                 // Save the image reference in the database.
                 imageUrl.metadata?.reference?.downloadUrl?.addOnSuccessListener { imageUri ->
                     saveImageInDatabase(imageUri.toString(), image.path)
-//                    binding.contentList.progressBar.visibility = View.GONE
+                    binding.contentList.progressBar.visibility = View.GONE
                 }
             }
         }
@@ -316,7 +373,32 @@ class StartRideFragment : Fragment(), ItemClickListener {
         }
     }
 
-    override fun onItemClickListener(scooter: Scooter, position: Int) {
+    private fun updateList() {
+        with(binding.contentList) {
+            recyclerView.layoutManager = LinearLayoutManager(context)
+            recyclerView.adapter = adapter
+        }
     }
 
+    /** Print a message in the ‘Logcat ‘ system and show snackbar message at bottom of user screen.
+     */
+//    private fun showMessage(scooter: Scooter) {
+//        val imm = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+//        imm?.hideSoftInputFromWindow(binding.updateRideButton.windowToken, 0)
+//        val snackbar =
+//            Snackbar.make(
+//                binding.updateRideButton,
+//                scooter.customMessage("updated"),
+//                Snackbar.LENGTH_LONG
+//            )
+//        snackbar.show()
+//    }
+
+    private fun showMessage() {
+        Log.d(TAG(), getString(R.string.started))
+        val snackbar = Snackbar.make(
+            binding.root, getString(R.string.ride_deleted), Snackbar.LENGTH_LONG
+        )
+        snackbar.show()
+    }
 }

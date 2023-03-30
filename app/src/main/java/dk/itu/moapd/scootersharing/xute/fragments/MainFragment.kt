@@ -74,9 +74,9 @@ import java.util.*
  * Use the [MainFragment] factory method to
  * create an instance of this fragment.
  */
-class MainFragment : Fragment(), ItemClickListener {
+class MainFragment : Fragment() {
 
-    // A set of private constants used in this class .
+    // A set of private constants used in this class.
     companion object {
         private val TAG = MainFragment::class.qualifiedName
         private lateinit var adapter: RealtimeAdapter
@@ -117,14 +117,14 @@ class MainFragment : Fragment(), ItemClickListener {
      */
     private lateinit var customAlertDialogView: View
 
-    /**
-     * This object launches a new activity and receives back some result data.
-     */
-    private val galleryLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        galleryResult(result)
-    }
+//    /**
+//     * This object launches a new activity and receives back some result data.
+//     */
+//    private val galleryLauncher = registerForActivityResult(
+//        ActivityResultContracts.StartActivityForResult()
+//    ) { result ->
+//        galleryResult(result)
+//    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -136,58 +136,58 @@ class MainFragment : Fragment(), ItemClickListener {
 
         // Initialize Firebase Auth.
         auth = FirebaseAuth.getInstance()
-        database =
-            Firebase.database(DATABASE_URL).reference
-        storage = Firebase.storage(BUCKET_URL)
-
-        // Define the add button behavior.
-        binding.floatingActionButton.setOnClickListener {
-            val galleryIntent = Intent(Intent.ACTION_GET_CONTENT).apply {
-                type = "image/*"
-            }
-            galleryLauncher.launch(galleryIntent)
-        }
-
-        // Create the search query.
-        auth.currentUser?.let {
-            val query = database
-                .child("scooter")
-                .child(it.uid)
-                .orderByChild("timestamp")
-
-            // A class provide by FirebaseUI to make a query in the database to fetch appropriate data.
-            val options = FirebaseRecyclerOptions.Builder<Scooter>()
-                .setQuery(query, Scooter::class.java)
-                .setLifecycleOwner(this)
-                .build()
-
-            // Create the custom adapter to bind a list of dummy objects.
-            adapter = RealtimeAdapter(this, options)
-
-            with(binding.contentList) {
-                // Define the recycler view layout manager.
-                val padding = 2
-                val columns = when (resources.configuration.orientation) {
-                    Configuration.ORIENTATION_PORTRAIT -> 2
-                    else -> 4
-                }
-                recyclerView.layoutManager = LinearLayoutManager(context)
-                recyclerView.itemAnimator = null
-                recyclerView.addItemDecoration(object : RecyclerView.ItemDecoration() {
-                    override fun getItemOffsets(
-                        outRect: Rect,
-                        view: View,
-                        parent: RecyclerView,
-                        state: RecyclerView.State
-                    ) {
-                        outRect.set(padding, padding, padding, padding)
-                    }
-                })
-                recyclerView.adapter = adapter
-            }
-        }
-        // Create a MaterialAlertDialogBuilder instance.
-        materialAlertDialogBuilder = MaterialAlertDialogBuilder(requireActivity())
+//        database =
+//            Firebase.database(DATABASE_URL).reference
+//        storage = Firebase.storage(BUCKET_URL)
+//
+//        // Define the add button behavior.
+//        binding.floatingActionButton.setOnClickListener {
+//            val galleryIntent = Intent(Intent.ACTION_GET_CONTENT).apply {
+//                type = "image/*"
+//            }
+//            galleryLauncher.launch(galleryIntent)
+//        }
+//
+//        // Create the search query.
+//        auth.currentUser?.let {
+//            val query = database
+//                .child("rideHistory")
+//                .child(it.uid)
+//                .orderByChild("timestamp")
+//
+//            // A class provide by FirebaseUI to make a query in the database to fetch appropriate data.
+//            val options = FirebaseRecyclerOptions.Builder<Scooter>()
+//                .setQuery(query, Scooter::class.java)
+//                .setLifecycleOwner(this)
+//                .build()
+//
+//            // Create the custom adapter to bind a list of dummy objects.
+//            adapter = RealtimeAdapter(this, options)
+//
+//            with(binding.contentList) {
+//                // Define the recycler view layout manager.
+//                val padding = 2
+//                val columns = when (resources.configuration.orientation) {
+//                    Configuration.ORIENTATION_PORTRAIT -> 2
+//                    else -> 4
+//                }
+//                recyclerView.layoutManager = LinearLayoutManager(context)
+//                recyclerView.itemAnimator = null
+//                recyclerView.addItemDecoration(object : RecyclerView.ItemDecoration() {
+//                    override fun getItemOffsets(
+//                        outRect: Rect,
+//                        view: View,
+//                        parent: RecyclerView,
+//                        state: RecyclerView.State
+//                    ) {
+//                        outRect.set(padding, padding, padding, padding)
+//                    }
+//                })
+//                recyclerView.adapter = adapter
+//            }
+//        }
+//        // Create a MaterialAlertDialogBuilder instance.
+//        materialAlertDialogBuilder = MaterialAlertDialogBuilder(requireActivity())
 
         return binding.root
     }
@@ -222,10 +222,10 @@ class MainFragment : Fragment(), ItemClickListener {
                 findNavController().navigate(R.id.action_mainFragment_to_updateRideFragment2)
             }
 //
-            listRideButton.setOnClickListener {
-                // Define the list view adapter.
-                updateList()
-            }
+//            listRideButton.setOnClickListener {
+//                // Define the list view adapter.
+//                updateList()
+//            }
 
             signOutButton.setOnClickListener {
                 Log.d(TAG, "signing out")
@@ -245,33 +245,18 @@ class MainFragment : Fragment(), ItemClickListener {
                 startLoginFragment()
             }
 
-            // Adding the swipe option.
-            val swipeHandler = object : SwipeToDeleteCallback() {
-                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-//                    super.onSwiped(viewHolder, direction)
-                    MaterialAlertDialogBuilder(requireContext()).setTitle(getString(R.string.delete_ride))
-                        .setMessage(getString(R.string.alert_supporting_text))
-                        .setNeutralButton(getString(R.string.cancel)) { _, _ ->
-                            updateList()
-                        }.setPositiveButton(getString(R.string.accept)) { _, _ ->
-                            adapter.getRef(viewHolder.absoluteAdapterPosition).removeValue()
-                            showMessage()
-                        }.show()
-                }
-            }
-            val itemTouchHelper = ItemTouchHelper(swipeHandler)
-            itemTouchHelper.attachToRecyclerView(contentList.recyclerView)
+
 
         }
 
     }
 
-    private fun updateList() {
-        with(binding.contentList) {
-            recyclerView.layoutManager = LinearLayoutManager(context)
-            recyclerView.adapter = adapter
-        }
-    }
+//    private fun updateList() {
+//        with(binding.contentList) {
+//            recyclerView.layoutManager = LinearLayoutManager(context)
+//            recyclerView.adapter = adapter
+//        }
+//    }
 
     private fun showMessage() {
         Log.d(TAG, getString(R.string.started))
@@ -284,169 +269,169 @@ class MainFragment : Fragment(), ItemClickListener {
     private fun startLoginFragment() {
         findNavController().navigate(R.id.action_mainFragment_to_loginFragment)
     }
+//
+//    /**
+//     * This method will be executed when the user press an item in the `RecyclerView` for a long
+//     * time.
+//     *
+//     * @param scooter An instance of `Scooter` class.
+//     * @param position The selected position in the `RecyclerView`.
+//     */
+//    override fun onItemClickListener(scooter: Scooter, position: Int) {
+//        // Inflate Custom alert dialog view
+//        customAlertDialogView = LayoutInflater.from(requireActivity())
+//            .inflate(R.layout.dialog_add_data, binding.root, false)
+//
+//        // Launching the custom alert dialog
+//        launchUpdateAlertDialog(scooter, position)
+//    }
 
-    /**
-     * This method will be executed when the user press an item in the `RecyclerView` for a long
-     * time.
-     *
-     * @param scooter An instance of `Scooter` class.
-     * @param position The selected position in the `RecyclerView`.
-     */
-    override fun onItemClickListener(scooter: Scooter, position: Int) {
-        // Inflate Custom alert dialog view
-        customAlertDialogView = LayoutInflater.from(requireActivity())
-            .inflate(R.layout.dialog_add_data, binding.root, false)
-
-        // Launching the custom alert dialog
-        launchUpdateAlertDialog(scooter, position)
-    }
-
-    /**
-     * Building the update alert dialog using the `MaterialAlertDialogBuilder` instance. This method
-     * shows a dialog with a single edit text. The user can type a name and add it to the text file
-     * dataset or cancel the operation.
-     *
-     * @param scooter An instance of `Dummy` class.
-     */
-    private fun launchUpdateAlertDialog(scooter: Scooter, position: Int) {
-        // Get the edit text component.
-        val editTextLocation = customAlertDialogView
-            .findViewById<TextInputEditText>(R.id.edit_text_name)
-        editTextLocation?.setText(scooter.location)
-
-        materialAlertDialogBuilder.setView(customAlertDialogView)
-            .setTitle(getString(R.string.dialog_update_title))
-            .setMessage("You are updating ${scooter.name}'s location")
-            .setPositiveButton(getString(R.string.update_button)) { dialog, _ ->
-                val location = editTextLocation?.text.toString()
-                if (location.isNotEmpty()) {
-                    scooter.location = location
-                    scooter.timestamp = System.currentTimeMillis()
-                    adapter.getRef(position).setValue(scooter)
-                }
-                dialog.dismiss()
-            }
-            .setNegativeButton(getString(R.string.cancel_button)) { dialog, _ ->
-                dialog.dismiss()
-            }
-            .show()
-    }
-
-    /**
-     * When the second activity finishes (i.e., the photo gallery intent), it returns a result to
-     * this activity. If the user selects an image correctly, we can get a reference of the selected
-     * image and send it to the Firebase Storage.
-     *
-     * @param result A container for an activity result as obtained form `onActivityResult()`.
-     */
-    private fun galleryResult(result: ActivityResult) {
-        if (result.resultCode == AppCompatActivity.RESULT_OK) {
-            // Create the folder structure save the selected image in the bucket.
-            auth.currentUser?.let {
-                val filename = UUID.randomUUID().toString()
-                val image = storage.reference.child("images/${it.uid}/$filename")
-                val thumbnail = storage.reference.child("images/${it.uid}/${filename}_thumbnail")
-//            Log.d("ok123", thumbnail.toString())
-                result.data?.data?.let { uri ->
-                    uploadImageToBucket(uri, image, thumbnail)
-                }
-            }
-        }
-    }
-
-    /**
-     * This method uploads the original and the thumbnail images to the Firebase Storage, and
-     * creates a reference of uploaded images in the database.
-     *
-     * @param uri The URI of original image.
-     * @param image The original image's storage reference in the Firebase Storage.
-     * @param thumbnail The thumbnail image's storage reference in the Firebase Storage.
-     */
-    private fun uploadImageToBucket(
-        uri: Uri,
-        image: StorageReference,
-        thumbnail: StorageReference
-    ) {
-        // Code for showing progress bar while uploading.
-        binding.contentList.progressBar.visibility = View.VISIBLE
-
-        // Upload the original image.
-        image.putFile(uri).addOnSuccessListener { imageUrl ->
-
-            // Upload the thumbnail image.
-            thumbnail.putFile(createThumbnail(uri)).addOnSuccessListener {
-
-                // Save the image reference in the database.
-                imageUrl.metadata?.reference?.downloadUrl?.addOnSuccessListener { imageUri ->
-                    saveImageInDatabase(imageUri.toString(), image.path)
-                    binding.contentList.progressBar.visibility = View.GONE
-                }
-            }
-        }
-    }
-
-    /**
-     * This method creates a squared thumbnail of the uploaded image. We are going to use the
-     * thumbnail to show the images into the `RecyclerView`.
-     *
-     * @param uri The immutable URI reference of uploaded image.
-     * @param size The image resolution used to create the thumbnail (Default: 300).
-     *
-     * @return The immutable URI reference of created thumbnail image.
-     */
-    private fun createThumbnail(uri: Uri, size: Int = 300): Uri {
-        val decode =
-            BitmapFactory.decodeStream(requireActivity().contentResolver.openInputStream(uri))
-        val thumbnail = ThumbnailUtils.extractThumbnail(
-            decode, size, size, ThumbnailUtils.OPTIONS_RECYCLE_INPUT
-        )
-        return getImageUri(thumbnail)
-    }
-
-    /**
-     * This method saves the bitmap in the temporary folder and return its immutable URI reference.
-     *
-     * @param image The thumbnail bitmap created in memory.
-     *
-     * @return The immutable URI reference of created thumbnail image.
-     */
-    private fun getImageUri(image: Bitmap): Uri {
-        val file = File(requireActivity().cacheDir, "thumbnail")
-        val outStream = FileOutputStream(file)
-        image.compress(Bitmap.CompressFormat.JPEG, 100, outStream)
-        outStream.close()
-        return Uri.fromFile(file)
-    }
-
-    /**
-     * This method saves a reference of uploaded image in the database. The Firebase Storage does
-     * NOT have a option to observe changes in the bucket an automatically updates the application.
-     * We must use a database to have this feature in our application.
-     *
-     * @param url The public URL of uploaded image.
-     * @param path The private URL of uploaded image on Firebase Storage.
-     */
-    private fun saveImageInDatabase(url: String, path: String) {
-        val timestamp = System.currentTimeMillis()
-        val image = Image(url, path, timestamp)
-
-        // In the case of authenticated user, create a new unique key for the object in the
-        // database.
-        auth.currentUser?.let { user ->
-            val uid = database.child("images")
-                .child(user.uid)
-                .push()
-                .key
-
-            // Insert the object in the database.
-            uid?.let {
-                database.child("images")
-                    .child(user.uid)
-                    .child(it)
-                    .setValue(image)
-            }
-        }
-    }
+//    /**
+//     * Building the update alert dialog using the `MaterialAlertDialogBuilder` instance. This method
+//     * shows a dialog with a single edit text. The user can type a name and add it to the text file
+//     * dataset or cancel the operation.
+//     *
+//     * @param scooter An instance of `Dummy` class.
+//     */
+//    private fun launchUpdateAlertDialog(scooter: Scooter, position: Int) {
+//        // Get the edit text component.
+//        val editTextLocation = customAlertDialogView
+//            .findViewById<TextInputEditText>(R.id.edit_text_name)
+//        editTextLocation?.setText(scooter.location)
+//
+//        materialAlertDialogBuilder.setView(customAlertDialogView)
+//            .setTitle(getString(R.string.dialog_update_title))
+//            .setMessage("You are updating ${scooter.name}'s location")
+//            .setPositiveButton(getString(R.string.update_button)) { dialog, _ ->
+//                val location = editTextLocation?.text.toString()
+//                if (location.isNotEmpty()) {
+//                    scooter.location = location
+//                    scooter.timestamp = System.currentTimeMillis()
+//                    adapter.getRef(position).setValue(scooter)
+//                }
+//                dialog.dismiss()
+//            }
+//            .setNegativeButton(getString(R.string.cancel_button)) { dialog, _ ->
+//                dialog.dismiss()
+//            }
+//            .show()
+//    }
+//
+//    /**
+//     * When the second activity finishes (i.e., the photo gallery intent), it returns a result to
+//     * this activity. If the user selects an image correctly, we can get a reference of the selected
+//     * image and send it to the Firebase Storage.
+//     *
+//     * @param result A container for an activity result as obtained form `onActivityResult()`.
+//     */
+//    private fun galleryResult(result: ActivityResult) {
+//        if (result.resultCode == AppCompatActivity.RESULT_OK) {
+//            // Create the folder structure save the selected image in the bucket.
+//            auth.currentUser?.let {
+//                val filename = UUID.randomUUID().toString()
+//                val image = storage.reference.child("images/${it.uid}/$filename")
+//                val thumbnail = storage.reference.child("images/${it.uid}/${filename}_thumbnail")
+////            Log.d("ok123", thumbnail.toString())
+//                result.data?.data?.let { uri ->
+//                    uploadImageToBucket(uri, image, thumbnail)
+//                }
+//            }
+//        }
+//    }
+//
+//    /**
+//     * This method uploads the original and the thumbnail images to the Firebase Storage, and
+//     * creates a reference of uploaded images in the database.
+//     *
+//     * @param uri The URI of original image.
+//     * @param image The original image's storage reference in the Firebase Storage.
+//     * @param thumbnail The thumbnail image's storage reference in the Firebase Storage.
+//     */
+//    private fun uploadImageToBucket(
+//        uri: Uri,
+//        image: StorageReference,
+//        thumbnail: StorageReference
+//    ) {
+//        // Code for showing progress bar while uploading.
+//        binding.contentList.progressBar.visibility = View.VISIBLE
+//
+//        // Upload the original image.
+//        image.putFile(uri).addOnSuccessListener { imageUrl ->
+//
+//            // Upload the thumbnail image.
+//            thumbnail.putFile(createThumbnail(uri)).addOnSuccessListener {
+//
+//                // Save the image reference in the database.
+//                imageUrl.metadata?.reference?.downloadUrl?.addOnSuccessListener { imageUri ->
+//                    saveImageInDatabase(imageUri.toString(), image.path)
+//                    binding.contentList.progressBar.visibility = View.GONE
+//                }
+//            }
+//        }
+//    }
+//
+//    /**
+//     * This method creates a squared thumbnail of the uploaded image. We are going to use the
+//     * thumbnail to show the images into the `RecyclerView`.
+//     *
+//     * @param uri The immutable URI reference of uploaded image.
+//     * @param size The image resolution used to create the thumbnail (Default: 300).
+//     *
+//     * @return The immutable URI reference of created thumbnail image.
+//     */
+//    private fun createThumbnail(uri: Uri, size: Int = 300): Uri {
+//        val decode =
+//            BitmapFactory.decodeStream(requireActivity().contentResolver.openInputStream(uri))
+//        val thumbnail = ThumbnailUtils.extractThumbnail(
+//            decode, size, size, ThumbnailUtils.OPTIONS_RECYCLE_INPUT
+//        )
+//        return getImageUri(thumbnail)
+//    }
+//
+//    /**
+//     * This method saves the bitmap in the temporary folder and return its immutable URI reference.
+//     *
+//     * @param image The thumbnail bitmap created in memory.
+//     *
+//     * @return The immutable URI reference of created thumbnail image.
+//     */
+//    private fun getImageUri(image: Bitmap): Uri {
+//        val file = File(requireActivity().cacheDir, "thumbnail")
+//        val outStream = FileOutputStream(file)
+//        image.compress(Bitmap.CompressFormat.JPEG, 100, outStream)
+//        outStream.close()
+//        return Uri.fromFile(file)
+//    }
+//
+//    /**
+//     * This method saves a reference of uploaded image in the database. The Firebase Storage does
+//     * NOT have a option to observe changes in the bucket an automatically updates the application.
+//     * We must use a database to have this feature in our application.
+//     *
+//     * @param url The public URL of uploaded image.
+//     * @param path The private URL of uploaded image on Firebase Storage.
+//     */
+//    private fun saveImageInDatabase(url: String, path: String) {
+//        val timestamp = System.currentTimeMillis()
+//        val image = Image(url, path, timestamp)
+//
+//        // In the case of authenticated user, create a new unique key for the object in the
+//        // database.
+//        auth.currentUser?.let { user ->
+//            val uid = database.child("images")
+//                .child(user.uid)
+//                .push()
+//                .key
+//
+//            // Insert the object in the database.
+//            uid?.let {
+//                database.child("images")
+//                    .child(user.uid)
+//                    .child(it)
+//                    .setValue(image)
+//            }
+//        }
+//    }
 
 //    /**
 //     * This method deletes a reference of uploaded image in the database, and the original and
