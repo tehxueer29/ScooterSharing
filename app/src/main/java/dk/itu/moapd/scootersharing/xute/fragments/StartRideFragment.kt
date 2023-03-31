@@ -14,6 +14,7 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.database.FirebaseRecyclerOptions
@@ -24,6 +25,7 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
+import dk.itu.moapd.scootersharing.xute.R
 import dk.itu.moapd.scootersharing.xute.adapters.RealtimeAdapter
 import dk.itu.moapd.scootersharing.xute.databinding.FragmentStartRideBinding
 import dk.itu.moapd.scootersharing.xute.interfaces.ItemClickListener
@@ -129,6 +131,11 @@ class StartRideFragment : Fragment(), ItemClickListener {
         super.onViewCreated(view, savedInstanceState)
 
         with(binding) {
+//            Show all rides in maps listener
+            viewMapsButton.setOnClickListener {
+                findNavController().navigate(R.id.action_startRideFragment_to_mapsFragment)
+            }
+
             // The start ride button listener.
 //            startRideButton.setOnClickListener {
 //                if (scooterName.text.isNotEmpty() && scooterLocation.text.isNotEmpty()) {

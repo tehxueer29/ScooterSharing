@@ -24,7 +24,11 @@
         android:id="@+id/startRideFragment"
         android:name="dk.itu.moapd.scootersharing.xute.fragments.StartRideFragment"
         android:label="fragment_start_ride"
-        tools:layout="@layout/fragment_start_ride" />
+        tools:layout="@layout/fragment_start_ride" >
+        <action
+            android:id="@+id/action_startRideFragment_to_mapsFragment"
+            app:destination="@id/mapsFragment" />
+    </fragment>
     <fragment
         android:id="@+id/updateRideFragment2"
         android:name="dk.itu.moapd.scootersharing.xute.fragments.RideHistoryFragment"
@@ -34,4 +38,8 @@
         android:id="@+id/loginFragment"
         android:name="dk.itu.moapd.scootersharing.xute.fragments.LoginFragment"
         android:label="LoginFragment" />
+    <fragment
+        android:id="@+id/mapsFragment"
+        android:name="dk.itu.moapd.scootersharing.xute.fragments.MapsFragment"
+        android:label="MapsFragment" />
 </navigation>
