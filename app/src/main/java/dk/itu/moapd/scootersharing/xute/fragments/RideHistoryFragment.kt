@@ -120,7 +120,7 @@ class RideHistoryFragment : Fragment(), ItemClickListener {
                 .build()
 
             // Create the custom adapter to bind a list of dummy objects.
-            adapter = RealtimeAdapter(this, options)
+            adapter = RealtimeAdapter(this, "RideHistoryUI",options)
 
             with(binding.contentList) {
                 // Define the recycler view layout manager.
@@ -352,8 +352,7 @@ class RideHistoryFragment : Fragment(), ItemClickListener {
      * @param path The private URL of uploaded image on Firebase Storage.
      */
     private fun saveImageInDatabase(url: String, path: String) {
-        val timestamp = System.currentTimeMillis()
-        val image = Image(url, path, timestamp)
+        val image = Image(url, path)
 
         // In the case of authenticated user, create a new unique key for the object in the
         // database.

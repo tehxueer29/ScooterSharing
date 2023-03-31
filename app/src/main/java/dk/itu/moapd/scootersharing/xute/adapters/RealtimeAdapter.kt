@@ -20,8 +20,8 @@
  */
 package dk.itu.moapd.scootersharing.xute.adapters
 
-import android.media.Image
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -32,6 +32,7 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import dk.itu.moapd.scootersharing.xute.databinding.ListRidesBinding
 import dk.itu.moapd.scootersharing.xute.interfaces.ItemClickListener
+import dk.itu.moapd.scootersharing.xute.models.Image
 import dk.itu.moapd.scootersharing.xute.models.Scooter
 import dk.itu.moapd.scootersharing.xute.utils.BUCKET_URL
 
@@ -40,15 +41,19 @@ import dk.itu.moapd.scootersharing.xute.utils.BUCKET_URL
  * A class to customize an adapter with a `ViewHolder` to populate a Dummy dataset into a
  * `RecyclerView`.
  */
-class RealtimeAdapter(private val itemClickListener: ItemClickListener,
-                      options: FirebaseRecyclerOptions<Scooter>) :
+class RealtimeAdapter(
+    private val itemClickListener: ItemClickListener,
+    private val ridesUI: String,
+    options: FirebaseRecyclerOptions<Scooter>
+) :
     FirebaseRecyclerAdapter<Scooter, RealtimeAdapter.ViewHolder>(options) {
 
     /**
      * An internal view holder class used to represent the layout that shows a single `String`
      * instance in the `RecyclerView`.
      */
-    class ViewHolder(private val binding: ListRidesBinding) : RecyclerView.ViewHolder(binding.root) {
+    class ViewHolder(private val binding: ListRidesBinding) :
+        RecyclerView.ViewHolder(binding.root) {
 
         /**
          * This method binds the `ViewHolder` instance and more cleanly separate concerns between
@@ -59,8 +64,20 @@ class RealtimeAdapter(private val itemClickListener: ItemClickListener,
         fun bind(scooter: Scooter) {
             binding.scooterName.text = scooter.name
             binding.scooterLocation.text = scooter.location
-            binding.scooterTime.text = scooter.getTimestampToString()
+            "Session started: ${scooter.getTimestampToString()}".also { binding.scooterTime.text = it }
         }
+
+        fun removeDeleteIcon() {
+            binding.deleteRideIcon.visibility = View.GONE
+        }
+
+        fun removeReserveButton() {
+            binding.reserveRideButton.visibility = View.GONE
+        }
+        fun removeTime() {
+            binding.scooterTime.visibility = View.GONE
+        }
+
 
         /**
          * This method binds the `ViewHolder` instance and more cleanly separate concerns between
@@ -69,13 +86,15 @@ class RealtimeAdapter(private val itemClickListener: ItemClickListener,
          * @param image The current `Image` instance.
          */
 //        TODO
-        fun imgBind() {
+        fun imgBind(image: Image?) {
 
             // Get the public thumbnail URL.
             val storage = Firebase.storage(BUCKET_URL)
 //            TODO
-//            val imageRef = storage.reference.child("${image.path}_thumbnail")
-            val imageRef = storage.reference.child("scooter_1.png")
+            var imageRef = storage.reference.child("scooter_1.png")
+            if (image != null) {
+                    imageRef = storage.reference.child("images/${image.path}_thumbnail")
+            }
 
             // Clean the image UI component.
             binding.imageView.setImageResource(0)
@@ -154,8 +173,15 @@ class RealtimeAdapter(private val itemClickListener: ItemClickListener,
         holder.apply {
             bind(scooter)
 //            TODO
-//            imgBind(scooter.image)
-            imgBind()
+
+            imgBind(scooter.image)
+
+            if (ridesUI == "StartRideUI") {
+                removeDeleteIcon()
+                removeTime()
+            } else {
+                removeReserveButton()
+            }
 
             // Listen for long clicks in the current item.
             itemView.setOnLongClickListener {
@@ -164,4 +190,5 @@ class RealtimeAdapter(private val itemClickListener: ItemClickListener,
             }
         }
     }
+
 }

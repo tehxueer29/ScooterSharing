@@ -27,8 +27,8 @@
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:adjustViewBounds="true"
-                android:scaleType="fitCenter"
                 android:contentDescription="@string/content_description_image"
+                android:scaleType="fitCenter"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintDimensionRatio="H,1:1"
                 app:layout_constraintLeft_toLeftOf="parent"
@@ -61,15 +61,15 @@
                 android:id="@+id/scooter_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
                 android:text="@string/scooter_time"
                 android:textAppearance="?attr/textAppearanceBody2"
                 android:textColor="?android:attr/textColorSecondary"
-                app:layout_constraintBaseline_toBaselineOf="@+id/scooter_location"
-                app:layout_constraintStart_toEndOf="@+id/scooter_location" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/scooter_location" />
 
             <ImageView
-                android:id="@+id/delete_ride_button"
+                android:id="@+id/delete_ride_icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
@@ -78,6 +78,16 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/image_view"
                 app:layout_constraintVertical_bias="0.5" />
+
+            <Button
+                android:id="@+id/reserve_ride_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/reserve_ride"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/scooter_time" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

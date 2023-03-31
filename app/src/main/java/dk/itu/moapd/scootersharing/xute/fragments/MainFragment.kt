@@ -217,7 +217,7 @@ class MainFragment : Fragment() {
                 findNavController().navigate(R.id.action_mainFragment_to_startRideFragment2)
             }
 //
-            updateRideButton.setOnClickListener {
+            rideHistoryButton.setOnClickListener {
 //                updateList(view)
                 findNavController().navigate(R.id.action_mainFragment_to_updateRideFragment2)
             }

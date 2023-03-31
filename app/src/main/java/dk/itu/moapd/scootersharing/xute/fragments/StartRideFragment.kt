@@ -1,7 +1,5 @@
 package dk.itu.moapd.scootersharing.xute.fragments
 
-import android.content.Context
-import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -9,19 +7,16 @@ import android.graphics.Rect
 import android.media.ThumbnailUtils
 import android.net.Uri
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.database.FirebaseRecyclerOptions
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
@@ -29,7 +24,6 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
-import dk.itu.moapd.scootersharing.xute.R
 import dk.itu.moapd.scootersharing.xute.adapters.RealtimeAdapter
 import dk.itu.moapd.scootersharing.xute.databinding.FragmentStartRideBinding
 import dk.itu.moapd.scootersharing.xute.interfaces.ItemClickListener
@@ -104,7 +98,7 @@ class StartRideFragment : Fragment(), ItemClickListener {
                 .build()
 
             // Create the custom adapter to bind a list of dummy objects.
-            adapter = RealtimeAdapter(this, options)
+            adapter = RealtimeAdapter(this, "StartRideUI", options)
 
             with(binding.contentList) {
                 // Define the recycler view layout manager.
@@ -212,8 +206,8 @@ class StartRideFragment : Fragment(), ItemClickListener {
             // Create the folder structure save the selected image in the bucket.
             auth.currentUser?.let {
                 val filename = UUID.randomUUID().toString()
-                val image = storage.reference.child("images/${it.uid}/$filename")
-                val thumbnail = storage.reference.child("images/${it.uid}/${filename}_thumbnail")
+                val image = storage.reference.child("images/$filename")
+                val thumbnail = storage.reference.child("images/${filename}_thumbnail")
 //            Log.d("ok123", thumbnail.toString())
                 result.data?.data?.let { uri ->
                     uploadImageToBucket(uri, image, thumbnail)
@@ -295,8 +289,7 @@ class StartRideFragment : Fragment(), ItemClickListener {
      * @param path The private URL of uploaded image on Firebase Storage.
      */
     private fun saveImageInDatabase(url: String, path: String) {
-        val timestamp = System.currentTimeMillis()
-        val image = Image(url, path, timestamp)
+        val image = Image(url, path)
 
         // In the case of authenticated user, create a new unique key for the object in the
         // database.

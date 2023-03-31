@@ -34,4 +34,6 @@
     <string name="Update_info">Hold down a ride to update it</string>
     <string name="content_description_add">Add</string>
     <string name="ride_history">Ride History</string>
+    <string name="reserve_ride">Reserve</string>
+    <string name="view_maps">View in Maps</string>
 </resources>
