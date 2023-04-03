@@ -155,24 +155,24 @@ class RideHistoryFragment : Fragment(), ItemClickListener {
 
         with(binding) {
 //            scooterName.hint = ridesDB.getCurrentScooter().name
-            auth.currentUser?.let { it ->
-                database
-                    .child("scooter")
-                    .child(it.uid)
-                    .orderByChild("timestamp")
-                    .limitToLast(1)
-                    .get()
-                    .addOnSuccessListener {
-                        Log.i("firebase", "Got value ${it.getValue<Scooter>()}")
-                        Log.i("firebase", "Got value ${it.value}")
-//                        it.getValue<Scooter>()
-//                        val scooter = Scooter(it.value.key)
-//                        scooterName.hint = it.value
-
-                    }.addOnFailureListener {
-                        Log.e("firebase", "Error getting data", it)
-                    }
-            }
+//            auth.currentUser?.let { it ->
+//                database
+//                    .child("scooter")
+//                    .child(it.uid)
+//                    .orderByChild("timestamp")
+//                    .limitToLast(1)
+//                    .get()
+//                    .addOnSuccessListener {
+//                        Log.i("firebase", "Got value ${it.getValue<Scooter>()}")
+//                        Log.i("firebase", "Got value ${it.value}")
+////                        it.getValue<Scooter>()
+////                        val scooter = Scooter(it.value.key)
+////                        scooterName.hint = it.value
+//
+//                    }.addOnFailureListener {
+//                        Log.e("firebase", "Error getting data", it)
+//                    }
+//            }
 // Adding the swipe option.
             val swipeHandler = object : SwipeToDeleteCallback() {
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {

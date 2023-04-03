@@ -29,7 +29,8 @@ data class Scooter(
     val name: String? = null,
     var location: String? = null,
     var timestamp: Long? = System.currentTimeMillis(),
-    var image: Image? = null
+    var image: Image? = null,
+    var qrkey: String? = null
 ) {
 
     fun getTimestampToString(): String {
