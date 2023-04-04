@@ -81,20 +81,4 @@ class MainActivity : AppCompatActivity() {
         val navController = navHostFragment.navController
     }
 
-    /**
-     * Called after `onCreate()` method; or after `onRestart()` method when the activity had been
-     * stopped, but is now again being displayed to the user. It will usually be followed by
-     * `onResume()`. This is a good place to begin drawing visual elements, running animations, etc.
-     *
-     * You can call `finish()` from within this function, in which case `onStop()` will be
-     * immediately called after `onStart()` without the lifecycle transitions in-between
-     * (`onResume()`, `onPause()`, etc) executing.
-     *
-     * <em>Derived classes must call through to the super class's implementation of this method. If
-     * they do not, an exception will be thrown.</em>
-     */
-    override fun onStart() {
-        super.onStart()
-
-    }
 }

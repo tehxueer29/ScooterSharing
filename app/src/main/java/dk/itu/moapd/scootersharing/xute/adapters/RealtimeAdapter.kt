@@ -23,6 +23,8 @@ package dk.itu.moapd.scootersharing.xute.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
@@ -54,6 +56,8 @@ class RealtimeAdapter(
      */
     class ViewHolder(private val binding: ListRidesBinding) :
         RecyclerView.ViewHolder(binding.root) {
+
+        val reserveButton: Button = binding.reserveRideButton
 
         /**
          * This method binds the `ViewHolder` instance and more cleanly separate concerns between
@@ -181,6 +185,16 @@ class RealtimeAdapter(
                 removeTime()
             } else {
                 removeReserveButton()
+            }
+
+            // Listen for short clicks in the current view holder.
+//            itemView.setOnClickListener {
+//                itemClickListener.onItemClickListener(btn)
+//            }
+            holder.reserveButton.setOnClickListener {
+                // Handle button click here
+                itemClickListener.onItemClickListener(scooter, position)
+                true
             }
 
             // Listen for long clicks in the current item.

@@ -7,9 +7,11 @@ import android.graphics.Rect
 import android.media.ThumbnailUtils
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -18,6 +20,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.database.FirebaseRecyclerOptions
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
@@ -33,6 +36,7 @@ import dk.itu.moapd.scootersharing.xute.models.Image
 import dk.itu.moapd.scootersharing.xute.models.Scooter
 import dk.itu.moapd.scootersharing.xute.utils.BUCKET_URL
 import dk.itu.moapd.scootersharing.xute.utils.DATABASE_URL
+import dk.itu.moapd.scootersharing.xute.utils.TAG
 import java.io.File
 import java.io.FileOutputStream
 import java.util.*
@@ -201,6 +205,7 @@ class StartRideFragment : Fragment(), ItemClickListener {
 //        snackbar.show()
 //    }
 
+
     /**
      * When the second activity finishes (i.e., the photo gallery intent), it returns a result to
      * this activity. If the user selects an image correctly, we can get a reference of the selected
@@ -317,6 +322,31 @@ class StartRideFragment : Fragment(), ItemClickListener {
     }
 
     override fun onItemClickListener(scooter: Scooter, position: Int) {
+//        Toast.makeText(requireContext(), "Button clicked for item at position $position", Toast.LENGTH_SHORT).show()
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(getString(R.string.start_ride))
+            .setMessage(getString(R.string.alert_supporting_text))
+            .setNeutralButton(getString(R.string.cancel)) { _, _ ->
+            }
+            .setPositiveButton(getString(R.string.accept)) { _, _ ->
+                // In the case of authenticated user, create a new unique key for the object in
+                // the database.
+                auth.currentUser?.let { user ->
+                    val uid = database.child("rideHistory")
+                        .child(user.uid)
+                        .push()
+                        .key
+
+                    // Insert the object in the database.
+                    uid?.let {
+                        database.child("rideHistory")
+                            .child(user.uid)
+                            .child(it)
+                            .setValue(scooter)
+                    }
+                }
+            }
+            .show()
     }
 
 }

@@ -36,4 +36,5 @@
     <string name="ride_history">Ride History</string>
     <string name="reserve_ride">Reserve</string>
     <string name="view_maps">View in Maps</string>
+    <string name="edit_info">Hold down a scooter to edit its location</string>
 </resources>

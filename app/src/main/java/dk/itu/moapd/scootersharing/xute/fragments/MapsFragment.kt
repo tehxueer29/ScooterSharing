@@ -2,20 +2,14 @@ package dk.itu.moapd.scootersharing.xute.fragments
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.graphics.Color
-import android.graphics.Typeface
 import android.location.Geocoder
 import android.location.Location
 import androidx.fragment.app.Fragment
-
 import android.os.Bundle
 import android.util.Log
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -27,7 +21,6 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -99,54 +92,8 @@ class MapsFragment : Fragment() {
 //        googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
 
         // Check if the user allows the application to access the location-aware resources.
-        if (checkPermission())
-            return@OnMapReadyCallback
+        if (checkPermission()) return@OnMapReadyCallback
 
-        auth.currentUser?.let {
-
-            // Create the search query.
-            val scooterListener = object : ValueEventListener {
-                override fun onDataChange(dataSnapshot: DataSnapshot) {
-//    Log.i(TAG(), dataSnapshot.value.toString())
-                    // Iterate through all the children in the data snapshot
-                    for (scooterSnapshot in dataSnapshot.children) {
-                        // Get the value of the scooter snapshot and update markers
-                        val scooter = scooterSnapshot.getValue<Scooter>()
-//                        Log.i(TAG(), scooter!!.location!!)
-                        val locName = scooter?.location
-                        val scooterName = scooter?.name
-
-                        val geocoder = Geocoder(requireContext(), Locale.getDefault())
-                        val results = locName?.let { it1 -> geocoder.getFromLocationName(it1, 1) }
-                        if (results != null && results.isNotEmpty()) {
-                            val latitude = results[0].latitude
-                            val longitude = results[0].longitude
-                            Log.i(TAG(), "Latitude: $latitude, Longitude: $longitude")
-                            val locCoord = LatLng(latitude, longitude)
-                            googleMap.addMarker(
-                                MarkerOptions().position(locCoord)
-                                    .title(scooterName)
-                                    .snippet(locName)
-                            )
-
-
-
-                        } else {
-                            Log.d(TAG(), "No location found")
-                        }
-
-
-                    }
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    // Getting Post failed, log a message
-                    Log.w(TAG(), "loadPost:onCancelled", error.toException())
-
-                }
-            }
-            database.child("scooter").addValueEventListener(scooterListener)
-        }
 
         try {
             // Call the method or operation that requires the permission
@@ -168,23 +115,65 @@ class MapsFragment : Fragment() {
                 isZoomGesturesEnabled = true
             }
 
-            // Start receiving location updates.
-            fusedLocationProviderClient = LocationServices
-                .getFusedLocationProviderClient(requireActivity())
+            // Move the Google Maps UI buttons under the OS top bar.
+            googleMap.setPadding(0, 100, 0, 0)
 
-            fusedLocationProviderClient.lastLocation
-                .addOnSuccessListener { location: Location? ->
-                    if (location != null) {
-                        googleMap.animateCamera(
-                            CameraUpdateFactory.newLatLngZoom(
-                                LatLng(
-                                    location.latitude,
-                                    location.longitude
-                                ), 14f
-                            )
-                        )
+            auth.currentUser?.let {
+
+                // Create the search query.
+                val scooterListener = object : ValueEventListener {
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+//    Log.i(TAG(), dataSnapshot.value.toString())
+                        // Iterate through all the children in the data snapshot
+                        for (scooterSnapshot in dataSnapshot.children) {
+                            // Get the value of the scooter snapshot and update markers
+                            val scooter = scooterSnapshot.getValue<Scooter>()
+//                        Log.i(TAG(), scooter!!.location!!)
+                            val locName = scooter?.location
+                            val scooterName = scooter?.name
+
+                            val geocoder = Geocoder(requireContext(), Locale.getDefault())
+                            val results =
+                                locName?.let { it1 -> geocoder.getFromLocationName(it1, 1) }
+                            if (results != null && results.isNotEmpty()) {
+                                val latitude = results[0].latitude
+                                val longitude = results[0].longitude
+//                            Log.i(TAG(), "Latitude: $latitude, Longitude: $longitude")
+                                val locCoord = LatLng(latitude, longitude)
+                                googleMap.addMarker(
+                                    MarkerOptions().position(locCoord).title(scooterName)
+                                        .snippet(locName)
+                                )
+                            } else {
+                                Log.d(TAG(), "No location found")
+                            }
+                        }
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        // Getting Post failed, log a message
+                        Log.w(TAG(), "loadPost:onCancelled", error.toException())
+
                     }
                 }
+                database.child("scooter").addValueEventListener(scooterListener)
+            }
+
+            // Start receiving location updates.
+            fusedLocationProviderClient =
+                LocationServices.getFusedLocationProviderClient(requireActivity())
+
+            fusedLocationProviderClient.lastLocation.addOnSuccessListener { location: Location? ->
+                if (location != null) {
+                    googleMap.animateCamera(
+                        CameraUpdateFactory.newLatLngZoom(
+                            LatLng(
+                                location.latitude, location.longitude
+                            ), 14f
+                        )
+                    )
+                }
+            }
 
 
 //             Initialize the `LocationCallback`.
@@ -205,8 +194,7 @@ class MapsFragment : Fragment() {
                         googleMap.animateCamera(
                             CameraUpdateFactory.newLatLngZoom(
                                 LatLng(
-                                    location.latitude,
-                                    location.longitude
+                                    location.latitude, location.longitude
                                 ), 14f
                             )
                         )
@@ -219,8 +207,6 @@ class MapsFragment : Fragment() {
             // Handle the exception appropriately
         }
 
-        // Move the Google Maps UI buttons under the OS top bar.
-        googleMap.setPadding(0, 100, 0, 0)
     }
 
     override fun onCreateView(
@@ -233,10 +219,7 @@ class MapsFragment : Fragment() {
         // Initialize Firebase Auth.
         auth = FirebaseAuth.getInstance()
 //        Initialize DB
-        database =
-            Firebase.database(DATABASE_URL).reference
-
-
+        database = Firebase.database(DATABASE_URL).reference
 
         return binding.root
     }
@@ -268,11 +251,9 @@ class MapsFragment : Fragment() {
         val permissionsToRequest = permissionsToRequest(permissions)
 
         // Show the permissions dialogs to the user.
-        if (permissionsToRequest.size > 0)
-            requestPermissions(
-                permissionsToRequest.toTypedArray(),
-                ALL_PERMISSIONS_RESULT
-            )
+        if (permissionsToRequest.size > 0) requestPermissions(
+            permissionsToRequest.toTypedArray(), ALL_PERMISSIONS_RESULT
+        )
     }
 
     /**
@@ -284,13 +265,10 @@ class MapsFragment : Fragment() {
      */
     private fun permissionsToRequest(permissions: ArrayList<String>): ArrayList<String> {
         val result: ArrayList<String> = ArrayList()
-        for (permission in permissions)
-            if (ContextCompat.checkSelfPermission(
-                    requireContext(),
-                    permission
-                ) != PackageManager.PERMISSION_GRANTED
-            )
-                result.add(permission)
+        for (permission in permissions) if (ContextCompat.checkSelfPermission(
+                requireContext(), permission
+            ) != PackageManager.PERMISSION_GRANTED
+        ) result.add(permission)
         return result
     }
 
@@ -300,12 +278,10 @@ class MapsFragment : Fragment() {
      *
      * @return A boolean value with the user permission agreement.
      */
-    private fun checkPermission() =
-        ActivityCompat.checkSelfPermission(
-            requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
-        ) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(
-                    requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED
+    private fun checkPermission() = ActivityCompat.checkSelfPermission(
+        requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
+    ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+        requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION
+    ) != PackageManager.PERMISSION_GRANTED
 
 }
