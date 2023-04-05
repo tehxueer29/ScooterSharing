@@ -15,7 +15,7 @@
             app:destination="@id/startRideFragment" />
         <action
             android:id="@+id/action_mainFragment_to_updateRideFragment2"
-            app:destination="@id/updateRideFragment2" />
+            app:destination="@id/rideHistoryFragment" />
         <action
             android:id="@+id/action_mainFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
@@ -28,9 +28,12 @@
         <action
             android:id="@+id/action_startRideFragment_to_mapsFragment"
             app:destination="@id/mapsFragment" />
+        <action
+            android:id="@+id/action_startRideFragment_to_QRScannerFragment"
+            app:destination="@id/QRScannerFragment" />
     </fragment>
     <fragment
-        android:id="@+id/updateRideFragment2"
+        android:id="@+id/rideHistoryFragment"
         android:name="dk.itu.moapd.scootersharing.xute.fragments.RideHistoryFragment"
         android:label="fragment_update_ride"
         tools:layout="@layout/fragment_ride_history" />
@@ -42,4 +45,12 @@
         android:id="@+id/mapsFragment"
         android:name="dk.itu.moapd.scootersharing.xute.fragments.MapsFragment"
         android:label="MapsFragment" />
+    <fragment
+        android:id="@+id/QRScannerFragment"
+        android:name="dk.itu.moapd.scootersharing.xute.fragments.QRScannerFragment"
+        android:label="QRScannerFragment" >
+        <action
+            android:id="@+id/action_QRScannerFragment_to_rideHistoryFragment"
+            app:destination="@id/rideHistoryFragment" />
+    </fragment>
 </navigation>

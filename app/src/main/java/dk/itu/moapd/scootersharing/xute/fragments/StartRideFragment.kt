@@ -329,22 +329,24 @@ class StartRideFragment : Fragment(), ItemClickListener {
             .setNeutralButton(getString(R.string.cancel)) { _, _ ->
             }
             .setPositiveButton(getString(R.string.accept)) { _, _ ->
+                findNavController().navigate(R.id.action_startRideFragment_to_QRScannerFragment)
+
                 // In the case of authenticated user, create a new unique key for the object in
                 // the database.
-                auth.currentUser?.let { user ->
-                    val uid = database.child("rideHistory")
-                        .child(user.uid)
-                        .push()
-                        .key
-
-                    // Insert the object in the database.
-                    uid?.let {
-                        database.child("rideHistory")
-                            .child(user.uid)
-                            .child(it)
-                            .setValue(scooter)
-                    }
-                }
+//                auth.currentUser?.let { user ->
+//                    val uid = database.child("rideHistory")
+//                        .child(user.uid)
+//                        .push()
+//                        .key
+//
+//                    // Insert the object in the database.
+//                    uid?.let {
+//                        database.child("rideHistory")
+//                            .child(user.uid)
+//                            .child(it)
+//                            .setValue(scooter)
+//                    }
+//                }
             }
             .show()
     }
