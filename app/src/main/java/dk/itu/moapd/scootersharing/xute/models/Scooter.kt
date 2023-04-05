@@ -29,12 +29,12 @@ data class Scooter(
     val name: String? = null,
     var location: String? = null,
     var timestamp: Long? = System.currentTimeMillis(),
+    var endTime: Long? = null,
     var image: Image? = null,
 ) {
 
-    fun getTimestampToString(): String {
+    fun getTimestampToString(time: Long? = this.timestamp): String {
         val timeDateFormat = SimpleDateFormat("dd/MM/yyyy hh:mm")
-        val time = this.timestamp
         return timeDateFormat.format(time)
     }
 

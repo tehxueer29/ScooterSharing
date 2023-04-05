@@ -20,11 +20,12 @@
  */
 package dk.itu.moapd.scootersharing.xute.adapters
 
+import android.content.Context
+import android.provider.Settings.Secure.getString
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
@@ -32,6 +33,7 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter
 import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
+import dk.itu.moapd.scootersharing.xute.R
 import dk.itu.moapd.scootersharing.xute.databinding.ListRidesBinding
 import dk.itu.moapd.scootersharing.xute.interfaces.ItemClickListener
 import dk.itu.moapd.scootersharing.xute.models.Image
@@ -44,6 +46,7 @@ import dk.itu.moapd.scootersharing.xute.utils.BUCKET_URL
  * `RecyclerView`.
  */
 class RealtimeAdapter(
+    private val context: Context,
     private val itemClickListener: ItemClickListener,
     private val ridesUI: String,
     options: FirebaseRecyclerOptions<Scooter>
@@ -68,16 +71,33 @@ class RealtimeAdapter(
         fun bind(scooter: Scooter) {
             binding.scooterName.text = scooter.name
             binding.scooterLocation.text = scooter.location
-            "Session started: ${scooter.getTimestampToString()}".also { binding.scooterTime.text = it }
+            "Session started: ${scooter.getTimestampToString()}".also {
+                binding.scooterTime.text = it
+            }
+        }
+
+        fun bindRideEnded(scooter: Scooter) {
+            "Session started: ${scooter.getTimestampToString()} \nSession ended: ${
+                scooter.getTimestampToString(
+                    scooter.endTime
+                )
+            }".also {
+                binding.scooterTime.text = it
+            }
         }
 
         fun removeDeleteIcon() {
             binding.deleteRideIcon.visibility = View.GONE
         }
 
-        fun removeReserveButton() {
+        fun removeEndRideBtn() {
             binding.reserveRideButton.visibility = View.GONE
         }
+
+        fun reserveToEndRideBtn(text: String) {
+            binding.reserveRideButton.text = text
+        }
+
         fun removeTime() {
             binding.scooterTime.visibility = View.GONE
         }
@@ -97,7 +117,7 @@ class RealtimeAdapter(
 //            TODO
             var imageRef = storage.reference.child("scooter_1.png")
             if (image != null) {
-                    imageRef = storage.reference.child("images/${image.path}_thumbnail")
+                imageRef = storage.reference.child("images/${image.path}_thumbnail")
             }
 
             // Clean the image UI component.
@@ -176,7 +196,6 @@ class RealtimeAdapter(
         // Bind the view holder with the selected `Dummy` data.
         holder.apply {
             bind(scooter)
-//            TODO
 
             imgBind(scooter.image)
 
@@ -184,13 +203,17 @@ class RealtimeAdapter(
                 removeDeleteIcon()
                 removeTime()
             } else {
-                removeReserveButton()
+                if (scooter.endTime != null) {
+//                ride has ended
+                    removeEndRideBtn()
+                    bindRideEnded(scooter)
+                } else {
+//                    ride started but has not ended
+                    reserveToEndRideBtn(context.getString(R.string.end_ride))
+                }
             }
 
             // Listen for short clicks in the current view holder.
-//            itemView.setOnClickListener {
-//                itemClickListener.onItemClickListener(btn)
-//            }
             holder.reserveButton.setOnClickListener {
                 // Handle button click here
                 itemClickListener.onItemClickListener(scooter, position)
@@ -199,7 +222,7 @@ class RealtimeAdapter(
 
             // Listen for long clicks in the current item.
             itemView.setOnLongClickListener {
-                itemClickListener.onItemClickListener(scooter, position)
+                itemClickListener.onLongItemClickListener(scooter, position)
                 true
             }
         }

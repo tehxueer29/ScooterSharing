@@ -104,7 +104,7 @@ class StartRideFragment : Fragment(), ItemClickListener {
                 .build()
 
             // Create the custom adapter to bind a list of dummy objects.
-            adapter = RealtimeAdapter(this, "StartRideUI", options)
+            adapter = RealtimeAdapter(requireContext(),this, "StartRideUI", options)
 
             with(binding.contentList) {
                 // Define the recycler view layout manager.
@@ -349,6 +349,9 @@ class StartRideFragment : Fragment(), ItemClickListener {
 //                }
             }
             .show()
+    }
+
+    override fun onLongItemClickListener(scooter: Scooter, position: Int) {
     }
 
 }

@@ -30,11 +30,20 @@ interface ItemClickListener  {
 
     /**
      * Implement this method to be executed when the user press an item in the `RecyclerView` for a
-     * long time.
+     * short time.
      *
      * @param scooter An instance of `Dummy` class.
      * @param position The selected position in the `RecyclerView`.
      */
     fun onItemClickListener(scooter: Scooter, position: Int)
+
+    /**
+     * Implement this method to be executed when the user press an item in the `RecyclerView` for a
+     * long time.
+     *
+     * @param scooter An instance of `Dummy` class.
+     * @param position The selected position in the `RecyclerView`.
+     */
+    fun onLongItemClickListener(scooter: Scooter, position: Int)
 
 }

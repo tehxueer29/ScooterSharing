@@ -27,7 +27,6 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
-import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
@@ -120,7 +119,7 @@ class RideHistoryFragment : Fragment(), ItemClickListener {
                 .build()
 
             // Create the custom adapter to bind a list of dummy objects.
-            adapter = RealtimeAdapter(this, "RideHistoryUI",options)
+            adapter = RealtimeAdapter(requireContext(),this, "RideHistoryUI",options)
 
             with(binding.contentList) {
                 // Define the recycler view layout manager.
@@ -218,6 +217,12 @@ class RideHistoryFragment : Fragment(), ItemClickListener {
     }
 
     override fun onItemClickListener(scooter: Scooter, position: Int) {
+//        TODO 1. implement photo taking intent
+//        TODO 2. update DB: put photo and endRide data in DB (both ridehistory and scooter)
+
+    }
+
+    override fun onLongItemClickListener(scooter: Scooter, position: Int) {
         // Inflate Custom alert dialog view
         customAlertDialogView = LayoutInflater.from(requireActivity())
             .inflate(R.layout.dialog_add_data, binding.root, false)
