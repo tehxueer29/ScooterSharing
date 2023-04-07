@@ -42,12 +42,6 @@ class CameraFragmentVM : ViewModel() {
     val selector: LiveData<CameraSelector>
         get() = _selector
 
-    private val _scooterName = MutableLiveData<String>("")
-    val scooterName: LiveData<String> = _scooterName
-    fun setScooterName(name: String) {
-        _scooterName.value = name
-    }
-
     /**
      * This method will be executed when the user interacts with the camera selector component. It
      * sets the selector into the LiveData instance.
