@@ -13,4 +13,7 @@
     <color name="grey_200">#BDBDBD</color>
     <color name="grey_300">#EFEFEF</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="icActive">#FFFFFFFF</color>
+    <color name="icFocused">#DDFFFFFF</color>
+    <color name="icPressed">#AAFFFFFF</color>
 </resources>

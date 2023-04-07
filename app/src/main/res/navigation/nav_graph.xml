@@ -36,7 +36,11 @@
         android:id="@+id/rideHistoryFragment"
         android:name="dk.itu.moapd.scootersharing.xute.fragments.RideHistoryFragment"
         android:label="fragment_update_ride"
-        tools:layout="@layout/fragment_ride_history" />
+        tools:layout="@layout/fragment_ride_history" >
+        <action
+            android:id="@+id/action_rideHistoryFragment_to_cameraFragment"
+            app:destination="@id/cameraFragment" />
+    </fragment>
     <fragment
         android:id="@+id/loginFragment"
         android:name="dk.itu.moapd.scootersharing.xute.fragments.LoginFragment"
@@ -53,4 +57,9 @@
             android:id="@+id/action_QRScannerFragment_to_rideHistoryFragment"
             app:destination="@id/rideHistoryFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/cameraFragment"
+        android:name="dk.itu.moapd.scootersharing.xute.fragments.CameraFragment"
+        android:label="fragment_camera"
+        tools:layout="@layout/fragment_camera" />
 </navigation>

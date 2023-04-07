@@ -1,22 +1,16 @@
 package dk.itu.moapd.scootersharing.xute.fragments
 
-import android.content.Context
 import android.content.res.Configuration
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Rect
-import android.media.ThumbnailUtils
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -29,20 +23,13 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
 import dk.itu.moapd.scootersharing.xute.R
 import dk.itu.moapd.scootersharing.xute.adapters.RealtimeAdapter
 import dk.itu.moapd.scootersharing.xute.databinding.FragmentRideHistoryBinding
 import dk.itu.moapd.scootersharing.xute.interfaces.ItemClickListener
-import dk.itu.moapd.scootersharing.xute.models.Image
 import dk.itu.moapd.scootersharing.xute.models.Scooter
-import dk.itu.moapd.scootersharing.xute.utils.BUCKET_URL
-import dk.itu.moapd.scootersharing.xute.utils.DATABASE_URL
-import dk.itu.moapd.scootersharing.xute.utils.SwipeToDeleteCallback
-import dk.itu.moapd.scootersharing.xute.utils.TAG
-import java.io.File
-import java.io.FileOutputStream
+import dk.itu.moapd.scootersharing.xute.utils.*
 import java.util.*
 
 /**
@@ -95,7 +82,7 @@ class RideHistoryFragment : Fragment(), ItemClickListener {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentRideHistoryBinding.inflate(
             layoutInflater, container, false
         )
@@ -217,8 +204,10 @@ class RideHistoryFragment : Fragment(), ItemClickListener {
     }
 
     override fun onItemClickListener(scooter: Scooter, position: Int) {
-//        TODO 1. implement photo taking intent
+//        TODO 1. pass data clicked (scooter and position) into camerafragment
 //        TODO 2. update DB: put photo and endRide data in DB (both ridehistory and scooter)
+
+        findNavController().navigate(R.id.action_rideHistoryFragment_to_cameraFragment)
 
     }
 
@@ -260,121 +249,6 @@ class RideHistoryFragment : Fragment(), ItemClickListener {
                 dialog.dismiss()
             }
             .show()
-    }
-
-    /**
-     * When the second activity finishes (i.e., the photo gallery intent), it returns a result to
-     * this activity. If the user selects an image correctly, we can get a reference of the selected
-     * image and send it to the Firebase Storage.
-     *
-     * @param result A container for an activity result as obtained form `onActivityResult()`.
-     */
-    private fun galleryResult(result: ActivityResult) {
-        if (result.resultCode == AppCompatActivity.RESULT_OK) {
-            // Create the folder structure save the selected image in the bucket.
-            auth.currentUser?.let {
-                val filename = UUID.randomUUID().toString()
-                val image = storage.reference.child("images/${it.uid}/$filename")
-                val thumbnail = storage.reference.child("images/${it.uid}/${filename}_thumbnail")
-//            Log.d("ok123", thumbnail.toString())
-                result.data?.data?.let { uri ->
-                    uploadImageToBucket(uri, image, thumbnail)
-                }
-            }
-        }
-    }
-
-    /**
-     * This method uploads the original and the thumbnail images to the Firebase Storage, and
-     * creates a reference of uploaded images in the database.
-     *
-     * @param uri The URI of original image.
-     * @param image The original image's storage reference in the Firebase Storage.
-     * @param thumbnail The thumbnail image's storage reference in the Firebase Storage.
-     */
-    private fun uploadImageToBucket(
-        uri: Uri,
-        image: StorageReference,
-        thumbnail: StorageReference
-    ) {
-        // Code for showing progress bar while uploading.
-        binding.contentList.progressBar.visibility = View.VISIBLE
-
-        // Upload the original image.
-        image.putFile(uri).addOnSuccessListener { imageUrl ->
-
-            // Upload the thumbnail image.
-            thumbnail.putFile(createThumbnail(uri)).addOnSuccessListener {
-
-                // Save the image reference in the database.
-                imageUrl.metadata?.reference?.downloadUrl?.addOnSuccessListener { imageUri ->
-                    saveImageInDatabase(imageUri.toString(), image.path)
-                    binding.contentList.progressBar.visibility = View.GONE
-                }
-            }
-        }
-    }
-
-    /**
-     * This method creates a squared thumbnail of the uploaded image. We are going to use the
-     * thumbnail to show the images into the `RecyclerView`.
-     *
-     * @param uri The immutable URI reference of uploaded image.
-     * @param size The image resolution used to create the thumbnail (Default: 300).
-     *
-     * @return The immutable URI reference of created thumbnail image.
-     */
-    private fun createThumbnail(uri: Uri, size: Int = 300): Uri {
-        val decode =
-            BitmapFactory.decodeStream(requireActivity().contentResolver.openInputStream(uri))
-        val thumbnail = ThumbnailUtils.extractThumbnail(
-            decode, size, size, ThumbnailUtils.OPTIONS_RECYCLE_INPUT
-        )
-        return getImageUri(thumbnail)
-    }
-
-    /**
-     * This method saves the bitmap in the temporary folder and return its immutable URI reference.
-     *
-     * @param image The thumbnail bitmap created in memory.
-     *
-     * @return The immutable URI reference of created thumbnail image.
-     */
-    private fun getImageUri(image: Bitmap): Uri {
-        val file = File(requireActivity().cacheDir, "thumbnail")
-        val outStream = FileOutputStream(file)
-        image.compress(Bitmap.CompressFormat.JPEG, 100, outStream)
-        outStream.close()
-        return Uri.fromFile(file)
-    }
-
-    /**
-     * This method saves a reference of uploaded image in the database. The Firebase Storage does
-     * NOT have a option to observe changes in the bucket an automatically updates the application.
-     * We must use a database to have this feature in our application.
-     *
-     * @param url The public URL of uploaded image.
-     * @param path The private URL of uploaded image on Firebase Storage.
-     */
-    private fun saveImageInDatabase(url: String, path: String) {
-        val image = Image(url, path)
-
-        // In the case of authenticated user, create a new unique key for the object in the
-        // database.
-        auth.currentUser?.let { user ->
-            val uid = database.child("images")
-                .child(user.uid)
-                .push()
-                .key
-
-            // Insert the object in the database.
-            uid?.let {
-                database.child("images")
-                    .child(user.uid)
-                    .child(it)
-                    .setValue(image)
-            }
-        }
     }
 
     private fun updateList() {
