@@ -8,7 +8,9 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -204,11 +206,9 @@ class RideHistoryFragment : Fragment(), ItemClickListener {
     }
 
     override fun onItemClickListener(scooter: Scooter, position: Int) {
-//        TODO 1. pass data clicked (scooter and position) into camerafragment
 //        TODO 2. update DB: put photo and endRide data in DB (both ridehistory and scooter)
-
+        setFragmentResult("requestKey", bundleOf("data" to scooter.timestamp.toString()))
         findNavController().navigate(R.id.action_rideHistoryFragment_to_cameraFragment)
-
     }
 
     override fun onLongItemClickListener(scooter: Scooter, position: Int) {

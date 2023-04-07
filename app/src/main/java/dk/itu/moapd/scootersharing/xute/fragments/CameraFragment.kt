@@ -19,6 +19,7 @@ import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
@@ -74,7 +75,8 @@ class CameraFragment : Fragment() {
      * The camera selector allows to select a camera or return a filtered set of cameras.
      */
     private lateinit var cameraSelector: CameraSelector
-    private lateinit var scooterName: String
+    private lateinit var scooterID: String
+
     /**
      * Defines a directory to save the captured images.
      */
@@ -123,6 +125,10 @@ class CameraFragment : Fragment() {
             layoutInflater, container, false
         )
 
+        setFragmentResultListener("requestKey") { key, bundle ->
+            scooterID = bundle.getString("data").toString()
+            Log.d(TAG, scooterID)
+        }
 
         // Initialize Firebase Auth.
         auth = FirebaseAuth.getInstance()
