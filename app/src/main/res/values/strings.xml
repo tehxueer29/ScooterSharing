@@ -43,4 +43,6 @@
     <string name="gallery_button_alt">Gallery</string>
     <string name="back_button_alt">Back</string>
     <string name="last_taken_image_text">Last taken image</string>
+    <string name="camera_info">Please take a photo of the parked scooter to end your ride.</string>
+    <string name="loading_info">Updating your ride... \nPlease wait a moment.</string>
 </resources>

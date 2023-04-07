@@ -42,11 +42,13 @@ class QRScannerFragment : Fragment() {
         // Initialize Firebase Auth.
         auth = FirebaseAuth.getInstance()
         database = Firebase.database(DATABASE_URL).reference
+        Log.d(TAG(), "start?")
         startQrCode()
 
     }
 
     private fun startQrCode() {
+
         val options = GmsBarcodeScannerOptions.Builder().setBarcodeFormats(
             Barcode.FORMAT_QR_CODE, Barcode.FORMAT_AZTEC
         ).build()

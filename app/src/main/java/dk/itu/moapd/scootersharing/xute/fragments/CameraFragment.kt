@@ -5,6 +5,7 @@ import dk.itu.moapd.scootersharing.xute.R
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
 import android.media.ThumbnailUtils
 import android.net.Uri
 import android.os.Bundle
@@ -13,17 +14,19 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.result.ActivityResult
-import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
@@ -34,6 +37,7 @@ import dk.itu.moapd.scootersharing.xute.models.Image
 import dk.itu.moapd.scootersharing.xute.utils.BUCKET_URL
 import dk.itu.moapd.scootersharing.xute.models.CameraFragmentVM
 import dk.itu.moapd.scootersharing.xute.utils.DATABASE_URL
+import dk.itu.moapd.scootersharing.xute.utils.TAG
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
@@ -125,15 +129,10 @@ class CameraFragment : Fragment() {
             layoutInflater, container, false
         )
 
-        setFragmentResultListener("requestKey") { key, bundle ->
-            scooterID = bundle.getString("data").toString()
-            Log.d(TAG, scooterID)
-        }
 
         // Initialize Firebase Auth.
         auth = FirebaseAuth.getInstance()
-        database =
-            Firebase.database(DATABASE_URL).reference
+        database = Firebase.database(DATABASE_URL).reference
         storage = Firebase.storage(BUCKET_URL)
 
         // Request camera permissions.
@@ -147,6 +146,10 @@ class CameraFragment : Fragment() {
 
             // Set up the listener for take photo button.
             cameraCaptureButton.setOnClickListener {
+                binding.cameraInfo.visibility = View.GONE
+                binding.loadingInfo.visibility = View.VISIBLE
+                binding.contentCamera.cameraCaptureButton.isEnabled = false
+                binding.contentCamera.cameraSwitchButton.isEnabled = false
                 takePhoto()
             }
 
@@ -220,6 +223,7 @@ class CameraFragment : Fragment() {
 
             // Set up the image capture by getting a reference to the `ImageCapture`.
             imageCapture = ImageCapture.Builder().build()
+            imageCapture!!.targetRotation = binding.contentCamera.viewFinder.display.rotation
 
             try {
                 // Unbind use cases before rebinding.
@@ -267,9 +271,13 @@ class CameraFragment : Fragment() {
                  */
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                     imageUri = Uri.fromFile(photoFile)
-                    val msg = "Photo capture succeeded: $imageUri"
-                    snackBar(msg)
-                    Log.d(TAG, msg)
+//                    push image to firebase storage DB
+                    pushToStorage(imageUri!!)
+
+
+//                    val msg = "Photo capture succeeded: $imageUri"
+//                    snackBar(msg)
+//                    Log.d(TAG, msg)
                 }
 
                 /**
@@ -330,18 +338,15 @@ class CameraFragment : Fragment() {
      *
      * @param result A container for an activity result as obtained form `onActivityResult()`.
      */
-    private fun galleryResult(result: ActivityResult) {
-        if (result.resultCode == AppCompatActivity.RESULT_OK) {
-            // Create the folder structure save the selected image in the bucket.
-            auth.currentUser?.let {
-                val filename = UUID.randomUUID().toString()
-                val image = storage.reference.child("images/${it.uid}/$filename")
-                val thumbnail = storage.reference.child("images/${it.uid}/${filename}_thumbnail")
+    private fun pushToStorage(uri: Uri) {
+        // Create the folder structure save the selected image in the bucket.
+        auth.currentUser?.let {
+            val filename = UUID.randomUUID().toString()
+            val image = storage.reference.child("images/$filename")
+            val thumbnail = storage.reference.child("images/${filename}_thumbnail")
 //            Log.d("ok123", thumbnail.toString())
-                result.data?.data?.let { uri ->
-                    uploadImageToBucket(uri, image, thumbnail)
-                }
-            }
+            uploadImageToBucket(uri, image, thumbnail)
+
         }
     }
 
@@ -354,9 +359,7 @@ class CameraFragment : Fragment() {
      * @param thumbnail The thumbnail image's storage reference in the Firebase Storage.
      */
     private fun uploadImageToBucket(
-        uri: Uri,
-        image: StorageReference,
-        thumbnail: StorageReference
+        uri: Uri, image: StorageReference, thumbnail: StorageReference
     ) {
         // Code for showing progress bar while uploading.
 //        binding.contentList.progressBar.visibility = View.VISIBLE
@@ -370,6 +373,8 @@ class CameraFragment : Fragment() {
                 // Save the image reference in the database.
                 imageUrl.metadata?.reference?.downloadUrl?.addOnSuccessListener { imageUri ->
                     saveImageInDatabase(imageUri.toString(), image.path)
+
+
 //                    binding.contentList.progressBar.visibility = View.GONE
                 }
             }
@@ -386,12 +391,15 @@ class CameraFragment : Fragment() {
      * @return The immutable URI reference of created thumbnail image.
      */
     private fun createThumbnail(uri: Uri, size: Int = 300): Uri {
-        val decode =
-            BitmapFactory.decodeStream(requireActivity().contentResolver.openInputStream(uri))
-        val thumbnail = ThumbnailUtils.extractThumbnail(
-            decode, size, size, ThumbnailUtils.OPTIONS_RECYCLE_INPUT
-        )
-        return getImageUri(thumbnail)
+        val decode = BitmapFactory.decodeStream(requireActivity().contentResolver.openInputStream(uri))
+        val thumbnail = ThumbnailUtils.extractThumbnail(decode, size, size, ThumbnailUtils.OPTIONS_RECYCLE_INPUT)
+
+        // Rotate the thumbnail by 90 degrees clockwise
+        val matrix = Matrix()
+        matrix.postRotate(90f)
+        val rotatedThumbnail = Bitmap.createBitmap(thumbnail, 0, 0, thumbnail.width, thumbnail.height, matrix, true)
+
+        return getImageUri(rotatedThumbnail)
     }
 
     /**
@@ -418,22 +426,74 @@ class CameraFragment : Fragment() {
      * @param path The private URL of uploaded image on Firebase Storage.
      */
     private fun saveImageInDatabase(url: String, path: String) {
-        val image = Image(url, path)
+        val newPath = path.removePrefix("/images/")
+        val image = Image(url, newPath)
 
         // In the case of authenticated user, create a new unique key for the object in the
         // database.
         auth.currentUser?.let { user ->
-            val uid = database.child("images")
-                .child(user.uid)
-                .push()
-                .key
 
-            // Insert the object in the database.
-            uid?.let {
-                database.child("images")
-                    .child(user.uid)
-                    .child(it)
-                    .setValue(image)
+            setFragmentResultListener("requestKey") { key, bundle ->
+                scooterID = bundle.getString("data").toString()
+                Log.d(TAG, scooterID)
+
+//                TODO update scooter image object
+                val queryRideHistory =
+                    database.child("rideHistory").child(user.uid).orderByChild("timestamp")
+                        .equalTo(scooterID.toDouble())
+                queryRideHistory.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        if (dataSnapshot.exists()) {
+                            // Retrieve the key for the ride with the given timestamp
+                            val rideKey = dataSnapshot.children.first().key
+
+                            Log.d(TAG, dataSnapshot.value.toString())
+                            Log.d(TAG, rideKey.toString())
+//                            TODO add to scooter table
+                            val data = dataSnapshot.value as Map<*, *>
+                            val result = data.values.first() as Map<*, *>
+//
+                            val scooterName = result["name"].toString()
+                            Log.d(TAG, scooterName.toString())
+
+                            var index = scooterName.takeLast(3).toInt() - 1
+                            Log.d(TAG, index.toString())
+
+                            // Update the value
+                            val updates = HashMap<String, Any>()
+                            updates["image"] = image
+                            updates["endTime"] = System.currentTimeMillis()
+
+                            database.child("rideHistory").child(user.uid).child(rideKey!!)
+                                .updateChildren(updates).addOnSuccessListener {
+                                    // Successfully updated the value in the database
+                                    database.child("scooter").child(index.toString()).child("image")
+                                        .setValue(image)
+                                        .addOnSuccessListener {
+                                            // Successfully updated the value in the database
+//                                            findNavController().navigate(R.id.action_cameraFragment_to_rideHistoryFragment)
+                                            findNavController().popBackStack()
+                                        }
+                                }
+
+
+                        } else {
+                            // Child with name "cph00x" does not exist in the list of scooters
+                            // Do something here
+                            Log.w(
+                                TAG(), "does not exist."
+                            )
+                        }
+                    }
+
+                    override fun onCancelled(databaseError: DatabaseError) {
+                        // Failed to read value
+                        Log.w(
+                            TAG(), "Failed to read value.", databaseError.toException()
+                        )
+                    }
+                })
+
             }
         }
     }

@@ -6,16 +6,14 @@ import android.location.Geocoder
 import android.location.Location
 import androidx.fragment.app.Fragment
 import android.os.Bundle
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationResult
-import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -237,6 +235,58 @@ class MapsFragment : Fragment() {
     }
 
     /**
+     * Called after `onStart()`, `onRestart()`, or `onPause()`, for your activity to start
+     * interacting with the user. This is an indicator that the activity became active and ready to
+     * receive input. It is on top of an activity stack and visible to user.
+     *
+     * On platform versions prior to `android.os.Build.VERSION_CODES#Q` this is also a good place to
+     * try to open exclusive-access devices or to get access to singleton resources. Starting  with
+     * `android.os.Build.VERSION_CODES#Q` there can be multiple resumed activities in the system
+     * simultaneously, so `onTopResumedActivityChanged(boolean)` should be used for that purpose
+     * instead.
+     *
+     * <Derived classes must call through to the super class's implementation of this method. If
+     * they do not, an exception will be thrown.
+     */
+    override fun onResume() {
+        super.onResume()
+        subscribeToLocationUpdates()
+    }
+
+    /**
+     * Called as part of the activity lifecycle when the user no longer actively interacts with the
+     * activity, but it is still visible on screen. The counterpart to `onResume()`.
+     *
+     * When activity `B` is launched in front of activity `A`, this callback will be invoked on `A`.
+     * `B` will not be created until `A`'s onPause() returns, so be sure to not do anything lengthy
+     * here.
+     *
+     * This callback is mostly used for saving any persistent state the activity is editing, to
+     * present a "edit in place" model to the user and making sure nothing is lost if there are not
+     * enough resources to start the new activity without first killing this one. This is also a
+     * good place to stop things that consume a noticeable amount of CPU in order to make the switch
+     * to the next activity as fast as possible.
+     *
+     * On platform versions prior to `android.os.Build.VERSION_CODES#Q` this is also a good place to
+     * try to close exclusive-access devices or to release access to singleton resources. Starting
+     * with `android.os.Build.VERSION_CODES#Q` there can be multiple resumed activities in the
+     * system at the same time, so `onTopResumedActivityChanged(boolean)` should be used for that
+     * purpose instead.
+     *
+     * If an activity is launched on top, after receiving this call you will usually receive a
+     * following call to `onStop()` (after the next activity has been resumed and displayed above).
+     * However in some cases there will be a direct call back to `onResume()` without going through
+     * the stopped state. An activity can also rest in paused state in some cases when in
+     * multi-window mode, still visible to user.
+     *
+     * Derived classes must call through to the super class's implementation of this method. If they
+     * do not, an exception will be thrown.
+     */
+    override fun onPause() {
+        super.onPause()
+        unsubscribeToLocationUpdates()
+    }
+    /**
      * Create a set of dialogs to show to the users and ask them for permissions to get the device's
      * resources.
      */
@@ -283,5 +333,35 @@ class MapsFragment : Fragment() {
     ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
         requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION
     ) != PackageManager.PERMISSION_GRANTED
+
+
+    /**
+     * Subscribes this application to get the location changes via the `locationCallback()`.
+     */
+    private fun subscribeToLocationUpdates() {
+
+        // Check if the user allows the application to access the location-aware resources.
+        if (checkPermission())
+            return
+
+        // Sets the accuracy and desired interval for active location updates.
+        val locationRequest = LocationRequest
+            .Builder(Priority.PRIORITY_HIGH_ACCURACY, 5)
+            .build()
+
+        // Subscribe to location changes.
+        fusedLocationProviderClient.requestLocationUpdates(
+            locationRequest, locationCallback, Looper.getMainLooper()
+        )
+    }
+
+    /**
+     * Unsubscribes this application of getting the location changes from  the `locationCallback()`.
+     */
+    private fun unsubscribeToLocationUpdates() {
+        // Unsubscribe to location changes.
+        fusedLocationProviderClient
+            .removeLocationUpdates(locationCallback)
+    }
 
 }
