@@ -110,6 +110,8 @@ class QRScannerFragment : Fragment() {
             // Task canceled
         }.addOnFailureListener { e ->
             // Task failed with an exception
+            Log.e(TAG(), e.toString())
+
         }
     }
 }
