@@ -1,6 +1,7 @@
 package dk.itu.moapd.scootersharing.xute.fragments
 
 import android.Manifest
+import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.location.Location
@@ -13,6 +14,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.navigation.fragment.findNavController
+import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -20,6 +23,7 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -74,7 +78,6 @@ class MapsFragment : Fragment() {
      */
     private lateinit var database: DatabaseReference
 
-    //
     private val callback = OnMapReadyCallback { googleMap ->
         /**
          * Manipulates the map once available.
@@ -85,110 +88,90 @@ class MapsFragment : Fragment() {
          * install it inside the SupportMapFragment. This method will only be triggered once the
          * user has installed Google Play services and returned to the app.
          */
-//        val sydney = LatLng(-34.0, 151.0)
-//        googleMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-//        googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+
+        // Set the default map type.
+        googleMap.mapType = GoogleMap.MAP_TYPE_HYBRID
+
+        // Setup the UI settings state.
+        googleMap.uiSettings.apply {
+            isCompassEnabled = true
+            isIndoorLevelPickerEnabled = true
+            isMyLocationButtonEnabled = true
+            isRotateGesturesEnabled = true
+            isScrollGesturesEnabled = true
+            isTiltGesturesEnabled = true
+            isZoomControlsEnabled = true
+            isZoomGesturesEnabled = true
+        }
+
+        // Move the Google Maps UI buttons under the OS top bar.
+        googleMap.setPadding(0, 100, 0, 0)
 
         // Check if the user allows the application to access the location-aware resources.
+//        Log.i(TAG(), checkPermission().toString())
         if (checkPermission()) return@OnMapReadyCallback
 
-
         try {
-            // Call the method or operation that requires the permission
-            // Show the current device's location as a blue dot.
-            googleMap.isMyLocationEnabled = true
+            val locationRequest = LocationRequest.create()
+            locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+            val builder = LocationSettingsRequest.Builder()
+                .addLocationRequest(locationRequest)
+                .setAlwaysShow(true)
+            val client: SettingsClient = LocationServices.getSettingsClient(requireContext())
+            val task: Task<LocationSettingsResponse> = client.checkLocationSettings(builder.build())
+            task.addOnSuccessListener { locationSettingsResponse ->
+                // location settings are turned on
 
-            // Set the default map type.
-            googleMap.mapType = GoogleMap.MAP_TYPE_HYBRID
+                // Show the current device's location as a blue dot.
+                googleMap.isMyLocationEnabled = true
 
-            // Setup the UI settings state.
-            googleMap.uiSettings.apply {
-                isCompassEnabled = true
-                isIndoorLevelPickerEnabled = true
-                isMyLocationButtonEnabled = true
-                isRotateGesturesEnabled = true
-                isScrollGesturesEnabled = true
-                isTiltGesturesEnabled = true
-                isZoomControlsEnabled = true
-                isZoomGesturesEnabled = true
-            }
+                auth.currentUser?.let {
 
-            // Move the Google Maps UI buttons under the OS top bar.
-            googleMap.setPadding(0, 100, 0, 0)
-
-            auth.currentUser?.let {
-
-                // Create the search query.
-                val scooterListener = object : ValueEventListener {
-                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    // Create the search query.
+                    val scooterListener = object : ValueEventListener {
+                        override fun onDataChange(dataSnapshot: DataSnapshot) {
 //    Log.i(TAG(), dataSnapshot.value.toString())
-                        // Iterate through all the children in the data snapshot
-                        for (scooterSnapshot in dataSnapshot.children) {
-                            // Get the value of the scooter snapshot and update markers
-                            val scooter = scooterSnapshot.getValue<Scooter>()
+                            // Iterate through all the children in the data snapshot
+                            for (scooterSnapshot in dataSnapshot.children) {
+                                // Get the value of the scooter snapshot and update markers
+                                val scooter = scooterSnapshot.getValue<Scooter>()
 //                        Log.i(TAG(), scooter!!.location!!)
-                            val locName = scooter?.location
-                            val scooterName = scooter?.name
+                                val locName = scooter?.location
+                                val scooterName = scooter?.name
 
-                            val geocoder = Geocoder(requireContext(), Locale.getDefault())
-                            val results =
-                                locName?.let { it1 -> geocoder.getFromLocationName(it1, 1) }
-                            if (results != null && results.isNotEmpty()) {
-                                val latitude = results[0].latitude
-                                val longitude = results[0].longitude
+                                val geocoder = Geocoder(requireContext(), Locale.getDefault())
+                                val results =
+                                    locName?.let { it1 -> geocoder.getFromLocationName(it1, 1) }
+                                if (results != null && results.isNotEmpty()) {
+                                    val latitude = results[0].latitude
+                                    val longitude = results[0].longitude
 //                            Log.i(TAG(), "Latitude: $latitude, Longitude: $longitude")
-                                val locCoord = LatLng(latitude, longitude)
-                                googleMap.addMarker(
-                                    MarkerOptions().position(locCoord).title(scooterName)
-                                        .snippet(locName)
-                                )
-                            } else {
-                                Log.d(TAG(), "No location found")
+                                    val locCoord = LatLng(latitude, longitude)
+                                    googleMap.addMarker(
+                                        MarkerOptions().position(locCoord).title(scooterName)
+                                            .snippet(locName)
+                                    )
+                                } else {
+                                    Log.d(TAG(), "No location found")
+                                }
                             }
                         }
+
+                        override fun onCancelled(error: DatabaseError) {
+                            // Getting Post failed, log a message
+                            Log.w(TAG(), "loadPost:onCancelled", error.toException())
+
+                        }
                     }
-
-                    override fun onCancelled(error: DatabaseError) {
-                        // Getting Post failed, log a message
-                        Log.w(TAG(), "loadPost:onCancelled", error.toException())
-
-                    }
+                    database.child("scooter").addValueEventListener(scooterListener)
                 }
-                database.child("scooter").addValueEventListener(scooterListener)
-            }
 
-            // Start receiving location updates.
-            fusedLocationProviderClient =
-                LocationServices.getFusedLocationProviderClient(requireActivity())
+                // Start receiving location updates.
+                fusedLocationProviderClient =
+                    LocationServices.getFusedLocationProviderClient(requireActivity())
 
-            fusedLocationProviderClient.lastLocation.addOnSuccessListener { location: Location? ->
-                if (location != null) {
-                    googleMap.animateCamera(
-                        CameraUpdateFactory.newLatLngZoom(
-                            LatLng(
-                                location.latitude, location.longitude
-                            ), 14f
-                        )
-                    )
-                }
-            }
-
-
-//             Initialize the `LocationCallback`.
-            locationCallback = object : LocationCallback() {
-
-                /**
-                 * This method will be executed when `FusedLocationProviderClient` has a new location.
-                 *
-                 * @param locationResult The last known location.
-                 */
-                override fun onLocationResult(locationResult: LocationResult) {
-                    super.onLocationResult(locationResult)
-
-
-                    // Updates the user interface components with GPS data location.
-                    locationResult.lastLocation?.let { location ->
-//                        Log.d(TAG(), location.latitude.toString())
+                fusedLocationProviderClient.lastLocation.addOnSuccessListener { location: Location? ->
+                    if (location != null) {
                         googleMap.animateCamera(
                             CameraUpdateFactory.newLatLngZoom(
                                 LatLng(
@@ -196,13 +179,55 @@ class MapsFragment : Fragment() {
                                 ), 14f
                             )
                         )
+                    }
+                }
 
+
+//             Initialize the `LocationCallback`.
+                locationCallback = object : LocationCallback() {
+
+                    /**
+                     * This method will be executed when `FusedLocationProviderClient` has a new location.
+                     *
+                     * @param locationResult The last known location.
+                     */
+                    override fun onLocationResult(locationResult: LocationResult) {
+                        super.onLocationResult(locationResult)
+
+
+                        // Updates the user interface components with GPS data location.
+                        locationResult.lastLocation?.let { location ->
+//                        Log.d(TAG(), location.latitude.toString())
+                            googleMap.animateCamera(
+                                CameraUpdateFactory.newLatLngZoom(
+                                    LatLng(
+                                        location.latitude, location.longitude
+                                    ), 14f
+                                )
+                            )
+
+                        }
+                    }
+                }
+            }
+            task.addOnFailureListener { exception ->
+                if (exception is ResolvableApiException) {
+                    // location settings are not turned on, show the user a dialog to turn it on
+                    try {
+                        exception.startResolutionForResult(
+                            requireActivity(),
+                            456
+                        )
+                    } catch (sendEx: IntentSender.SendIntentException) {
+                        // failed to show dialog
                     }
                 }
             }
 
+
         } catch (e: SecurityException) {
             // Handle the exception appropriately
+            Log.e(TAG(), e.toString())
         }
 
     }
@@ -214,6 +239,9 @@ class MapsFragment : Fragment() {
         binding = FragmentMapsBinding.inflate(
             layoutInflater, container, false
         )
+        // Show a dialog to ask the user to allow the application to access the device's location.
+        requestUserPermissions()
+
         // Initialize Firebase Auth.
         auth = FirebaseAuth.getInstance()
 //        Initialize DB
@@ -224,68 +252,64 @@ class MapsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         // Obtain the `SupportMapFragment` and get notified when the map is ready to be used.
         val mapFragment =
             childFragmentManager.findFragmentById(R.id.google_maps) as SupportMapFragment?
         mapFragment?.getMapAsync(callback)
-
-        // Show a dialog to ask the user to allow the application to access the device's location.
-        requestUserPermissions()
     }
 
-    /**
-     * Called after `onStart()`, `onRestart()`, or `onPause()`, for your activity to start
-     * interacting with the user. This is an indicator that the activity became active and ready to
-     * receive input. It is on top of an activity stack and visible to user.
-     *
-     * On platform versions prior to `android.os.Build.VERSION_CODES#Q` this is also a good place to
-     * try to open exclusive-access devices or to get access to singleton resources. Starting  with
-     * `android.os.Build.VERSION_CODES#Q` there can be multiple resumed activities in the system
-     * simultaneously, so `onTopResumedActivityChanged(boolean)` should be used for that purpose
-     * instead.
-     *
-     * <Derived classes must call through to the super class's implementation of this method. If
-     * they do not, an exception will be thrown.
-     */
-    override fun onResume() {
-        super.onResume()
-        subscribeToLocationUpdates()
-    }
-
-    /**
-     * Called as part of the activity lifecycle when the user no longer actively interacts with the
-     * activity, but it is still visible on screen. The counterpart to `onResume()`.
-     *
-     * When activity `B` is launched in front of activity `A`, this callback will be invoked on `A`.
-     * `B` will not be created until `A`'s onPause() returns, so be sure to not do anything lengthy
-     * here.
-     *
-     * This callback is mostly used for saving any persistent state the activity is editing, to
-     * present a "edit in place" model to the user and making sure nothing is lost if there are not
-     * enough resources to start the new activity without first killing this one. This is also a
-     * good place to stop things that consume a noticeable amount of CPU in order to make the switch
-     * to the next activity as fast as possible.
-     *
-     * On platform versions prior to `android.os.Build.VERSION_CODES#Q` this is also a good place to
-     * try to close exclusive-access devices or to release access to singleton resources. Starting
-     * with `android.os.Build.VERSION_CODES#Q` there can be multiple resumed activities in the
-     * system at the same time, so `onTopResumedActivityChanged(boolean)` should be used for that
-     * purpose instead.
-     *
-     * If an activity is launched on top, after receiving this call you will usually receive a
-     * following call to `onStop()` (after the next activity has been resumed and displayed above).
-     * However in some cases there will be a direct call back to `onResume()` without going through
-     * the stopped state. An activity can also rest in paused state in some cases when in
-     * multi-window mode, still visible to user.
-     *
-     * Derived classes must call through to the super class's implementation of this method. If they
-     * do not, an exception will be thrown.
-     */
-    override fun onPause() {
-        super.onPause()
-        unsubscribeToLocationUpdates()
-    }
+//    /**
+//     * Called after `onStart()`, `onRestart()`, or `onPause()`, for your activity to start
+//     * interacting with the user. This is an indicator that the activity became active and ready to
+//     * receive input. It is on top of an activity stack and visible to user.
+//     *
+//     * On platform versions prior to `android.os.Build.VERSION_CODES#Q` this is also a good place to
+//     * try to open exclusive-access devices or to get access to singleton resources. Starting  with
+//     * `android.os.Build.VERSION_CODES#Q` there can be multiple resumed activities in the system
+//     * simultaneously, so `onTopResumedActivityChanged(boolean)` should be used for that purpose
+//     * instead.
+//     *
+//     * <Derived classes must call through to the super class's implementation of this method. If
+//     * they do not, an exception will be thrown.
+//     */
+//    override fun onResume() {
+//        super.onResume()
+//        subscribeToLocationUpdates()
+//    }
+//
+//    /**
+//     * Called as part of the activity lifecycle when the user no longer actively interacts with the
+//     * activity, but it is still visible on screen. The counterpart to `onResume()`.
+//     *
+//     * When activity `B` is launched in front of activity `A`, this callback will be invoked on `A`.
+//     * `B` will not be created until `A`'s onPause() returns, so be sure to not do anything lengthy
+//     * here.
+//     *
+//     * This callback is mostly used for saving any persistent state the activity is editing, to
+//     * present a "edit in place" model to the user and making sure nothing is lost if there are not
+//     * enough resources to start the new activity without first killing this one. This is also a
+//     * good place to stop things that consume a noticeable amount of CPU in order to make the switch
+//     * to the next activity as fast as possible.
+//     *
+//     * On platform versions prior to `android.os.Build.VERSION_CODES#Q` this is also a good place to
+//     * try to close exclusive-access devices or to release access to singleton resources. Starting
+//     * with `android.os.Build.VERSION_CODES#Q` there can be multiple resumed activities in the
+//     * system at the same time, so `onTopResumedActivityChanged(boolean)` should be used for that
+//     * purpose instead.
+//     *
+//     * If an activity is launched on top, after receiving this call you will usually receive a
+//     * following call to `onStop()` (after the next activity has been resumed and displayed above).
+//     * However in some cases there will be a direct call back to `onResume()` without going through
+//     * the stopped state. An activity can also rest in paused state in some cases when in
+//     * multi-window mode, still visible to user.
+//     *
+//     * Derived classes must call through to the super class's implementation of this method. If they
+//     * do not, an exception will be thrown.
+//     */
+//    override fun onPause() {
+//        super.onPause()
+//        unsubscribeToLocationUpdates()
+//    }
     /**
      * Create a set of dialogs to show to the users and ask them for permissions to get the device's
      * resources.
@@ -334,34 +358,34 @@ class MapsFragment : Fragment() {
         requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION
     ) != PackageManager.PERMISSION_GRANTED
 
-
-    /**
-     * Subscribes this application to get the location changes via the `locationCallback()`.
-     */
-    private fun subscribeToLocationUpdates() {
-
-        // Check if the user allows the application to access the location-aware resources.
-        if (checkPermission())
-            return
-
-        // Sets the accuracy and desired interval for active location updates.
-        val locationRequest = LocationRequest
-            .Builder(Priority.PRIORITY_HIGH_ACCURACY, 5)
-            .build()
-
-        // Subscribe to location changes.
-        fusedLocationProviderClient.requestLocationUpdates(
-            locationRequest, locationCallback, Looper.getMainLooper()
-        )
-    }
-
-    /**
-     * Unsubscribes this application of getting the location changes from  the `locationCallback()`.
-     */
-    private fun unsubscribeToLocationUpdates() {
-        // Unsubscribe to location changes.
-        fusedLocationProviderClient
-            .removeLocationUpdates(locationCallback)
-    }
+//
+//    /**
+//     * Subscribes this application to get the location changes via the `locationCallback()`.
+//     */
+//    private fun subscribeToLocationUpdates() {
+//
+//        // Check if the user allows the application to access the location-aware resources.
+//        if (checkPermission())
+//            return
+//
+//        // Sets the accuracy and desired interval for active location updates.
+//        val locationRequest = LocationRequest
+//            .Builder(Priority.PRIORITY_HIGH_ACCURACY, 5)
+//            .build()
+//
+//        // Subscribe to location changes.
+//        fusedLocationProviderClient.requestLocationUpdates(
+//            locationRequest, locationCallback, Looper.getMainLooper()
+//        )
+//    }
+//
+//    /**
+//     * Unsubscribes this application of getting the location changes from  the `locationCallback()`.
+//     */
+//    private fun unsubscribeToLocationUpdates() {
+//        // Unsubscribe to location changes.
+//        fusedLocationProviderClient
+//            .removeLocationUpdates(locationCallback)
+//    }
 
 }

@@ -79,6 +79,7 @@ class CameraFragment : Fragment() {
      * The camera selector allows to select a camera or return a filtered set of cameras.
      */
     private lateinit var cameraSelector: CameraSelector
+
     private lateinit var scooterID: String
 
     /**
@@ -250,7 +251,7 @@ class CameraFragment : Fragment() {
     private fun takePhoto() {
 
         // Get a stable reference of the modifiable image capture use case.
-        val imageCapture = imageCapture ?: return
+        val imageCapture: ImageCapture = imageCapture ?: return
 
         // Create time-stamped output file to hold the image.
         val photoFile = File(
@@ -274,10 +275,6 @@ class CameraFragment : Fragment() {
 //                    push image to firebase storage DB
                     pushToStorage(imageUri!!)
 
-
-//                    val msg = "Photo capture succeeded: $imageUri"
-//                    snackBar(msg)
-//                    Log.d(TAG, msg)
                 }
 
                 /**

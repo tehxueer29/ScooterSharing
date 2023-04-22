@@ -1,5 +1,7 @@
 package dk.itu.moapd.scootersharing.xute.fragments
 
+import android.app.Activity.RESULT_OK
+import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -22,12 +24,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
+import com.google.zxing.integration.android.IntentIntegrator
 import dk.itu.moapd.scootersharing.xute.R
 import dk.itu.moapd.scootersharing.xute.adapters.RealtimeAdapter
 import dk.itu.moapd.scootersharing.xute.databinding.FragmentStartRideBinding
@@ -104,7 +110,7 @@ class StartRideFragment : Fragment(), ItemClickListener {
                 .build()
 
             // Create the custom adapter to bind a list of dummy objects.
-            adapter = RealtimeAdapter(requireContext(),this, "StartRideUI", options)
+            adapter = RealtimeAdapter(requireContext(), this, "StartRideUI", options)
 
             with(binding.contentList) {
                 // Define the recycler view layout manager.
@@ -329,26 +335,71 @@ class StartRideFragment : Fragment(), ItemClickListener {
             .setNeutralButton(getString(R.string.cancel)) { _, _ ->
             }
             .setPositiveButton(getString(R.string.accept)) { _, _ ->
-                findNavController().navigate(R.id.action_startRideFragment_to_QRScannerFragment)
-
-                // In the case of authenticated user, create a new unique key for the object in
-                // the database.
-//                auth.currentUser?.let { user ->
-//                    val uid = database.child("rideHistory")
-//                        .child(user.uid)
-//                        .push()
-//                        .key
-//
-//                    // Insert the object in the database.
-//                    uid?.let {
-//                        database.child("rideHistory")
-//                            .child(user.uid)
-//                            .child(it)
-//                            .setValue(scooter)
-//                    }
-//                }
+                val integrator = IntentIntegrator.forSupportFragment(this)
+                integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
+                integrator.setPrompt("Scan a QR code")
+                integrator.setCameraId(0) // Use the rear-facing camera
+                integrator.setBeepEnabled(false)
+                integrator.initiateScan()
             }
             .show()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == IntentIntegrator.REQUEST_CODE && resultCode == RESULT_OK) {
+            val result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data)
+            val scannedData = result.contents // The scanned QR code data
+            // Do something with the scanned data
+//            Log.i(TAG(), scannedData.toString())
+            // Task completed successfully
+            val scooterName: String? = scannedData
+            val message = "You have started $scooterName!"
+            Log.i(TAG(), message)
+
+            auth.currentUser?.let { user ->
+                val query =
+                    database.child("scooter").orderByChild("name").equalTo(scooterName)
+                query.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        if (dataSnapshot.exists()) {
+                            // Do something here
+                            Log.d(TAG(), dataSnapshot.value.toString())
+
+                            val data = dataSnapshot.value as Map<*, *>
+                            val result = data.values.first() as Map<*, *>
+
+                            val scooter = Scooter(
+                                result["name"] as String?,
+                                result["location"] as String?
+                            )
+//                                    Log.i(TAG(), scooter.toString())
+                            // Handle retrieved data here
+                            val uid =
+                                database.child("rideHistory").child(user.uid).push().key
+
+                            // Insert the object in the database.
+                            uid?.let {
+                                database.child("rideHistory").child(user.uid).child(it)
+                                    .setValue(scooter)
+                            }
+
+                        } else {
+                            // Child with name "cph00x" does not exist in the list of scooters
+                            // Do something here
+                        }
+                    }
+
+                    override fun onCancelled(databaseError: DatabaseError) {
+                        // Failed to read value
+                        Log.w(
+                            TAG(), "Failed to read value.", databaseError.toException()
+                        )
+                    }
+                })
+            }
+        }
     }
 
     override fun onLongItemClickListener(scooter: Scooter, position: Int) {
