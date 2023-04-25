@@ -331,7 +331,7 @@ class StartRideFragment : Fragment(), ItemClickListener {
 //        Toast.makeText(requireContext(), "Button clicked for item at position $position", Toast.LENGTH_SHORT).show()
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(getString(R.string.start_ride))
-            .setMessage(getString(R.string.alert_supporting_text))
+            .setMessage(getString(R.string.alert_scanqr_text))
             .setNeutralButton(getString(R.string.cancel)) { _, _ ->
             }
             .setPositiveButton(getString(R.string.accept)) { _, _ ->
@@ -345,6 +345,7 @@ class StartRideFragment : Fragment(), ItemClickListener {
             .show()
     }
 
+    private lateinit var scooter: Scooter
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -367,13 +368,24 @@ class StartRideFragment : Fragment(), ItemClickListener {
                             // Do something here
                             Log.d(TAG(), dataSnapshot.value.toString())
 
-                            val data = dataSnapshot.value as Map<*, *>
-                            val result = data.values.first() as Map<*, *>
+                            if (dataSnapshot.value is ArrayList<*>) {
+                                Log.d(TAG(), "trueE")
+                                val dataSnapshot = dataSnapshot.value as ArrayList<*>
+                                var result = dataSnapshot[1]
+                                result = result as Map<*, *>
+                                scooter = Scooter(
+                                    result["name"] as String?,
+                                    result["location"] as String?
+                                )
+                            } else {
+                                val data = dataSnapshot.value as Map<*, *>
+                                val result = data.values.first() as Map<*, *>
+                                scooter = Scooter(
+                                    result["name"] as String?,
+                                    result["location"] as String?
+                                )
+                            }
 
-                            val scooter = Scooter(
-                                result["name"] as String?,
-                                result["location"] as String?
-                            )
 //                                    Log.i(TAG(), scooter.toString())
                             // Handle retrieved data here
                             val uid =
@@ -384,6 +396,7 @@ class StartRideFragment : Fragment(), ItemClickListener {
                                 database.child("rideHistory").child(user.uid).child(it)
                                     .setValue(scooter)
                             }
+                            findNavController().navigate(R.id.action_startRideFragment_to_rideHistoryFragment)
 
                         } else {
                             // Child with name "cph00x" does not exist in the list of scooters

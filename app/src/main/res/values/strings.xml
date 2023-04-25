@@ -45,4 +45,5 @@
     <string name="last_taken_image_text">Last taken image</string>
     <string name="camera_info">Please take a photo of the parked scooter to end your ride.</string>
     <string name="loading_info">Updating your ride... \nPlease wait a moment.</string>
+    <string name="alert_scanqr_text">Please scan the QR code on the scooter to start a ride.</string>
 </resources>
