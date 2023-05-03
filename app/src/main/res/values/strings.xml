@@ -46,4 +46,6 @@
     <string name="camera_info">Please take a photo of the parked scooter to end your ride.</string>
     <string name="loading_info">Updating your ride... \nPlease wait a moment.</string>
     <string name="alert_scanqr_text">Please scan the QR code on the scooter to start a ride.</string>
+    <string name="nearest_scooter">View nearest scooter</string>
+    <string name="ride_in_progress">Ride in progress</string>
 </resources>

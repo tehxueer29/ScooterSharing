@@ -2,6 +2,7 @@ package dk.itu.moapd.scootersharing.xute.fragments
 
 import android.app.Activity.RESULT_OK
 import android.content.Intent
+import android.content.IntentSender
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -22,6 +23,10 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.database.FirebaseRecyclerOptions
+import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.location.*
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.tasks.Task
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -93,6 +98,8 @@ class StartRideFragment : Fragment(), ItemClickListener {
         binding = FragmentStartRideBinding.inflate(
             layoutInflater, container, false
         )
+
+
         // Initialize Firebase Auth.
         auth = FirebaseAuth.getInstance()
         database =
@@ -140,77 +147,34 @@ class StartRideFragment : Fragment(), ItemClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val locationRequest = LocationRequest.create()
+        locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        val builder = LocationSettingsRequest.Builder()
+            .addLocationRequest(locationRequest)
+            .setAlwaysShow(true)
+        val client: SettingsClient = LocationServices.getSettingsClient(requireContext())
+        val task: Task<LocationSettingsResponse> = client.checkLocationSettings(builder.build())
+        task.addOnFailureListener { exception ->
+            if (exception is ResolvableApiException) {
+                // location settings are not turned on, show the user a dialog to turn it on
+                try {
+                    exception.startResolutionForResult(
+                        requireActivity(),
+                        456
+                    )
+                } catch (sendEx: IntentSender.SendIntentException) {
+                    // failed to show dialog
+                }
+            }
+        }
+
         with(binding) {
 //            Show all rides in maps listener
             viewMapsButton.setOnClickListener {
                 findNavController().navigate(R.id.action_startRideFragment_to_mapsFragment)
             }
-
-            // The start ride button listener.
-//            startRideButton.setOnClickListener {
-//                if (scooterName.text.isNotEmpty() && scooterLocation.text.isNotEmpty()) {
-//
-//                    MaterialAlertDialogBuilder(requireContext())
-//                        .setTitle(getString(R.string.start_ride))
-//                        .setMessage(getString(R.string.alert_supporting_text))
-//                        .setNeutralButton(getString(R.string.cancel)) { _, _ ->
-//                        }
-//                        .setPositiveButton(getString(R.string.accept)) { _, _ ->
-//                            // Update the object attributes
-//                            val name = scooterName.text.toString().trim()
-//                            val location = scooterLocation.text.toString().trim()
-//
-//                            val scooter = Scooter(name, location)
-//
-//                            val galleryIntent = Intent(Intent.ACTION_GET_CONTENT).apply {
-//                                type = "image/*"
-//                            }
-//                            galleryLauncher.launch(galleryIntent)
-//
-//                            // In the case of authenticated user, create a new unique key for the object in
-//                            // the database.
-//                            auth.currentUser?.let { user ->
-//                                val uid = database.child("rideHistory")
-//                                    .child(user.uid)
-//                                    .push()
-//                                    .key
-//
-//                                // Insert the object in the database.
-//                                uid?.let {
-//                                    database.child("rideHistory")
-//                                        .child(user.uid)
-//                                        .child(it)
-//                                        .setValue(scooter)
-//                                }
-//                            }
-//
-//                            // Reset the text fields and update the UI.
-//                            scooterName.text.clear()
-//                            scooterLocation.text.clear()
-//
-//                            showMessage(scooter)
-//                        }
-//                        .show()
-//
-//                }
-//            }
         }
     }
-
-    /** Print a message in the ‘Logcat ‘ system and show snackbar message at bottom of user screen.
-     */
-//    private fun showMessage(scooter: Scooter) {
-//        val imm = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
-//        imm?.hideSoftInputFromWindow(binding.startRideButton.windowToken, 0)
-//        val snackbar =
-//            Snackbar.make(
-//                binding.startRideButton,
-//                scooter.customMessage("started"),
-//                Snackbar.LENGTH_LONG
-//            )
-//        snackbar.show()
-//    }
-
 
     /**
      * When the second activity finishes (i.e., the photo gallery intent), it returns a result to
@@ -247,9 +211,6 @@ class StartRideFragment : Fragment(), ItemClickListener {
         image: StorageReference,
         thumbnail: StorageReference
     ) {
-        // Code for showing progress bar while uploading.
-//        binding.contentList.progressBar.visibility = View.VISIBLE
-
         // Upload the original image.
         image.putFile(uri).addOnSuccessListener { imageUrl ->
 
@@ -259,7 +220,6 @@ class StartRideFragment : Fragment(), ItemClickListener {
                 // Save the image reference in the database.
                 imageUrl.metadata?.reference?.downloadUrl?.addOnSuccessListener { imageUri ->
                     saveImageInDatabase(imageUri.toString(), image.path)
-//                    binding.contentList.progressBar.visibility = View.GONE
                 }
             }
         }
@@ -368,15 +328,27 @@ class StartRideFragment : Fragment(), ItemClickListener {
                             // Do something here
                             Log.d(TAG(), dataSnapshot.value.toString())
 
+//                            TODO make the data consistent.
+
                             if (dataSnapshot.value is ArrayList<*>) {
                                 Log.d(TAG(), "trueE")
                                 val dataSnapshot = dataSnapshot.value as ArrayList<*>
-                                var result = dataSnapshot[1]
-                                result = result as Map<*, *>
-                                scooter = Scooter(
-                                    result["name"] as String?,
-                                    result["location"] as String?
-                                )
+                                if (dataSnapshot[0] != null) {
+                                    var result = dataSnapshot[0]
+                                    result = result as Map<*, *>
+                                    scooter = Scooter(
+                                        result["name"] as String?,
+                                        result["location"] as String?
+                                    )
+                                } else {
+                                    var result = dataSnapshot[1]
+                                    result = result as Map<*, *>
+                                    scooter = Scooter(
+                                        result["name"] as String?,
+                                        result["location"] as String?
+                                    )
+                                }
+
                             } else {
                                 val data = dataSnapshot.value as Map<*, *>
                                 val result = data.values.first() as Map<*, *>

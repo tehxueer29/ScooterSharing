@@ -142,25 +142,6 @@ class RideHistoryFragment : Fragment(), ItemClickListener {
         super.onViewCreated(view, savedInstanceState)
 
         with(binding) {
-//            scooterName.hint = ridesDB.getCurrentScooter().name
-//            auth.currentUser?.let { it ->
-//                database
-//                    .child("scooter")
-//                    .child(it.uid)
-//                    .orderByChild("timestamp")
-//                    .limitToLast(1)
-//                    .get()
-//                    .addOnSuccessListener {
-//                        Log.i("firebase", "Got value ${it.getValue<Scooter>()}")
-//                        Log.i("firebase", "Got value ${it.value}")
-////                        it.getValue<Scooter>()
-////                        val scooter = Scooter(it.value.key)
-////                        scooterName.hint = it.value
-//
-//                    }.addOnFailureListener {
-//                        Log.e("firebase", "Error getting data", it)
-//                    }
-//            }
 // Adding the swipe option.
             val swipeHandler = object : SwipeToDeleteCallback() {
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
@@ -177,31 +158,6 @@ class RideHistoryFragment : Fragment(), ItemClickListener {
             }
             val itemTouchHelper = ItemTouchHelper(swipeHandler)
             itemTouchHelper.attachToRecyclerView(contentList.recyclerView)
-
-            // The update ride button listener.
-//            updateRideButton.setOnClickListener {
-//
-//                if (scooterLocation.text.isNotEmpty()) {
-//                    MaterialAlertDialogBuilder(requireContext())
-//                        .setTitle(getString(R.string.update_ride))
-//                        .setMessage(getString(R.string.alert_supporting_text))
-//                        .setNeutralButton(getString(R.string.cancel)) { _, _ ->
-//                        }
-//                        .setPositiveButton(getString(R.string.accept)) { _, _ ->
-//                            // Update the object attributes
-//                            val location = scooterLocation.text.toString().trim()
-////                            TODO
-////                            ridesDB.updateCurrentScooter(location)
-//
-//                            // Reset the text fields and update the UI.
-//                            scooterLocation.text.clear()
-//
-////                            TODO
-////                            showMessage(scooter)
-//                        }
-//                        .show()
-//                }
-//            }
         }
     }
 

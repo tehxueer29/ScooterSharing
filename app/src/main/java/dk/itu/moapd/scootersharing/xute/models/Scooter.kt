@@ -23,8 +23,6 @@ SOFTWARE.
 package dk.itu.moapd.scootersharing.xute.models
 
 import java.text.SimpleDateFormat
-import java.util.Objects
-
 data class Scooter(
     val name: String? = null,
     var location: String? = null,

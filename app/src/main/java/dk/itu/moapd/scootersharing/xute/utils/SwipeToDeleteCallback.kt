@@ -22,6 +22,7 @@ package dk.itu.moapd.scootersharing.xute.utils
 
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 
 
 /**
@@ -72,9 +73,9 @@ open class SwipeToDeleteCallback :
      *      well.
      */
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-//        Snackbar
-//            .make(viewHolder.itemView, "Item deleted successfully", Snackbar.LENGTH_SHORT)
-//            .show()
+        Snackbar
+            .make(viewHolder.itemView, "Item deleted successfully", Snackbar.LENGTH_SHORT)
+            .show()
     }
 
 }

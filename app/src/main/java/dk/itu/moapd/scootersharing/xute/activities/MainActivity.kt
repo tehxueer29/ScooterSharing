@@ -23,12 +23,19 @@ SOFTWARE.
 
 package dk.itu.moapd.scootersharing.xute.activities
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.navigation.fragment.NavHostFragment
+import com.google.android.gms.location.*
+import com.google.android.gms.tasks.Task
 import dk.itu.moapd.scootersharing.xute.R
 import dk.itu.moapd.scootersharing.xute.databinding.ActivityMainBinding
+import dk.itu.moapd.scootersharing.xute.fragments.MapsFragment
 
 /**
  * An activity class with methods to manage the main activity of ScooterSharing application.
@@ -46,9 +53,11 @@ class MainActivity : AppCompatActivity() {
     /**
      * A set of static attributes used in this activity class.
      */
-//    companion object {
-//        private val TAG = MainActivity::class.qualifiedName
-//    }
+    companion object {
+        private const val ALL_PERMISSIONS_RESULT = 1011
+        private const val REQUEST_CODE_PERMISSIONS = 10
+        private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
+    }
 
     /**
      * Called when the activity is starting. This is where most initialization should go: calling
@@ -76,9 +85,81 @@ class MainActivity : AppCompatActivity() {
         mainBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mainBinding.root)
 
+        // Show a dialog to ask the user to allow the application to access the device's location.
+        requestUserPermissions()
+
+        if (allPermissionsGranted()) {
+            openLocation ()
+        } else {
+            // Show a dialog to ask the user to allow the application to access the device's camera.
+            ActivityCompat.requestPermissions(
+                this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
+            )
+
+            openLocation ()
+        }
+
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.fragment_container_view) as NavHostFragment
         val navController = navHostFragment.navController
     }
 
+    private fun openLocation () {
+        val locationRequest = LocationRequest.create()
+        locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        val builder = LocationSettingsRequest.Builder()
+            .addLocationRequest(locationRequest)
+            .setAlwaysShow(true)
+        val client: SettingsClient = LocationServices.getSettingsClient(this)
+        val task: Task<LocationSettingsResponse> = client.checkLocationSettings(builder.build())
+    }
+
+    /**
+     * Create a set of dialogs to show to the users and ask them for permissions to get the device's
+     * resources.
+     */
+    private fun requestUserPermissions() {
+
+        // An array with location-aware permissions.
+        val permissions: ArrayList<String> = ArrayList()
+        permissions.add(Manifest.permission.ACCESS_FINE_LOCATION)
+        permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION)
+
+        // Check which permissions is needed to ask to the user.
+        val permissionsToRequest = permissionsToRequest(permissions)
+
+        // Show the permissions dialogs to the user.
+        if (permissionsToRequest.size > 0) requestPermissions(
+            permissionsToRequest.toTypedArray(), ALL_PERMISSIONS_RESULT
+        )
+    }
+
+
+    /**
+     * Create an array with the permissions to show to the user.
+     *
+     * @param permissions An array with the permissions needed by this applications.
+     *
+     * @return An array with the permissions needed to ask to the user.
+     */
+    private fun permissionsToRequest(permissions: ArrayList<String>): ArrayList<String> {
+        val result: ArrayList<String> = ArrayList()
+        for (permission in permissions)
+            if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED)
+                result.add(permission)
+        return result
+    }
+
+    /**
+     * A method to show a dialog to the users as ask permission to access their Android mobile
+     * device resources.
+     *
+     * @return `PackageManager#PERMISSION_GRANTED` if the given pid/uid is allowed that permission,
+     *      or `PackageManager#PERMISSION_DENIED` if it is not.
+     */
+    private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
+        ContextCompat.checkSelfPermission(
+            baseContext, it
+        ) == PackageManager.PERMISSION_GRANTED
+    }
 }

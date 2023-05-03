@@ -434,7 +434,6 @@ class CameraFragment : Fragment() {
                 scooterID = bundle.getString("data").toString()
                 Log.d(TAG, scooterID)
 
-//                TODO update scooter image object
                 val queryRideHistory =
                     database.child("rideHistory").child(user.uid).orderByChild("timestamp")
                         .equalTo(scooterID.toDouble())

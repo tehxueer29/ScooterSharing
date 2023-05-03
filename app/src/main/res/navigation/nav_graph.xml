@@ -29,8 +29,8 @@
             android:id="@+id/action_startRideFragment_to_mapsFragment"
             app:destination="@id/mapsFragment" />
         <action
-            android:id="@+id/action_startRideFragment_to_QRScannerFragment"
-            app:destination="@id/QRScannerFragment" />
+            android:id="@+id/action_startRideFragment_to_rideHistoryFragment"
+            app:destination="@id/rideHistoryFragment" />
     </fragment>
     <fragment
         android:id="@+id/rideHistoryFragment"
@@ -49,14 +49,6 @@
         android:id="@+id/mapsFragment"
         android:name="dk.itu.moapd.scootersharing.xute.fragments.MapsFragment"
         android:label="MapsFragment" />
-    <fragment
-        android:id="@+id/QRScannerFragment"
-        android:name="dk.itu.moapd.scootersharing.xute.fragments.QRScannerFragment"
-        android:label="QRScannerFragment" >
-        <action
-            android:id="@+id/action_QRScannerFragment_to_rideHistoryFragment"
-            app:destination="@id/rideHistoryFragment" />
-    </fragment>
     <fragment
         android:id="@+id/cameraFragment"
         android:name="dk.itu.moapd.scootersharing.xute.fragments.CameraFragment"

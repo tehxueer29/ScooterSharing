@@ -5,39 +5,50 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context=".fragments.RideHistoryFragment">
+    tools:context=".fragments.StartRideFragment">
 
     <TextView
         android:id="@+id/app_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="24dp"
         android:gravity="center"
-        android:padding="24dp"
-        android:text="@string/ride_history"
+        android:text="@string/start_ride"
         android:textSize="25sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/camera_info"
+        app:layout_constraintBottom_toTopOf="@+id/view_maps_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed" />
 
-    <TextView
-        android:id="@+id/camera_info"
+    <Button
+        android:id="@+id/view_maps_button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/view_maps"
+        app:layout_constraintBottom_toTopOf="@+id/content_list"
+        app:layout_constraintEnd_toStartOf="@+id/guideline5"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/guideline6"
+        app:layout_constraintTop_toBottomOf="@+id/app_name" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:gravity="center"
-        android:text="@string/edit_info"
-        android:textSize="16sp"
-        app:layout_constraintBottom_toTopOf="@+id/content_list"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/app_name"
-        app:layout_constraintVertical_chainStyle="packed" />
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.7"
+        />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.3"
+        />
 
     <include
         android:id="@+id/content_list"
@@ -46,9 +57,9 @@
         android:layout_height="0dp"
         android:layout_marginBottom="32dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline5"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/camera_info" />
+        app:layout_constraintStart_toStartOf="@+id/guideline6"
+        app:layout_constraintTop_toBottomOf="@+id/view_maps_button" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

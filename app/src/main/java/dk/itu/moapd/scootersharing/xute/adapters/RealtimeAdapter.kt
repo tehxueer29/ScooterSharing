@@ -21,7 +21,7 @@
 package dk.itu.moapd.scootersharing.xute.adapters
 
 import android.content.Context
-import android.provider.Settings.Secure.getString
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -39,6 +39,7 @@ import dk.itu.moapd.scootersharing.xute.interfaces.ItemClickListener
 import dk.itu.moapd.scootersharing.xute.models.Image
 import dk.itu.moapd.scootersharing.xute.models.Scooter
 import dk.itu.moapd.scootersharing.xute.utils.BUCKET_URL
+import dk.itu.moapd.scootersharing.xute.utils.TAG
 
 
 /**
@@ -92,6 +93,13 @@ class RealtimeAdapter(
 
         fun removeEndRideBtn() {
             binding.reserveRideButton.visibility = View.GONE
+            binding.rideInProgress.visibility = View.GONE
+            binding.imageView.visibility = View.VISIBLE
+        }
+        fun showEndRideBtn() {
+            binding.reserveRideButton.visibility = View.VISIBLE
+            binding.rideInProgress.visibility = View.VISIBLE
+            binding.imageView.visibility = View.GONE
         }
 
         fun reserveToEndRideBtn(text: String) {
@@ -111,6 +119,7 @@ class RealtimeAdapter(
          */
 //        TODO
         fun imgBind(image: Image?) {
+//            Log.d(TAG(), image.toString())
 
             // Get the public thumbnail URL.
             val storage = Firebase.storage(BUCKET_URL)
@@ -196,6 +205,7 @@ class RealtimeAdapter(
         // Bind the view holder with the selected `Dummy` data.
         holder.apply {
             bind(scooter)
+//            Log.d(TAG(), scooter.toString())
 
             imgBind(scooter.image)
 
@@ -203,6 +213,7 @@ class RealtimeAdapter(
                 removeDeleteIcon()
                 removeTime()
             } else {
+                showEndRideBtn()
                 if (scooter.endTime != null) {
 //                ride has ended
                     removeEndRideBtn()
