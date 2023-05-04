@@ -33,13 +33,15 @@ class LoginFragment : Fragment() {
         createSignInIntent()
 
     }
+
     private fun createSignInIntent() {
 
         // Choose authentication providers.
         val providers = arrayListOf(
 //            AuthUI.IdpConfig.EmailBuilder().build(),
 //            AuthUI.IdpConfig.PhoneBuilder().build(),
-            AuthUI.IdpConfig.GoogleBuilder().build())
+            AuthUI.IdpConfig.GoogleBuilder().build()
+        )
 
         // Create and launch sign-in intent.
         val signInIntent = AuthUI.getInstance()
@@ -65,11 +67,11 @@ class LoginFragment : Fragment() {
     private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
         if (result.resultCode == AppCompatActivity.RESULT_OK) {
             // Sign in success, update UI with the signed-in user's information.
-            Log.d(TAG(),"User logged in the app.")
+            Log.d(TAG(), "User logged in the app.")
             startMainActivity()
         } else
         // If sign in fails, display a message to the user.
-            Log.d(TAG(),"Authentication failed.")
+            Log.d(TAG(), "Authentication failed.")
     }
 
     /**

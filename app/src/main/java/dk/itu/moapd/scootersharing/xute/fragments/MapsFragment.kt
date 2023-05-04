@@ -87,10 +87,6 @@ class MapsFragment : Fragment() {
     // Tracks the bound state of the service.
     private var mBound = false
 
-    // UI elements.
-//    private val mRequestLocationUpdatesButton: Button? = null
-//    private val mRemoveLocationUpdatesButton: Button? = null
-
     // Monitors the state of the connection to the service.
     private val mServiceConnection = object : ServiceConnection {
 
@@ -195,7 +191,7 @@ class MapsFragment : Fragment() {
 //                        Log.i(TAG(), scooter!!.location!!)
                             val locName = scooter?.location
                             val scooterName = scooter?.name.toString()
-
+                            if (!isAdded) return
                             val geocoder = Geocoder(requireContext(), Locale.getDefault())
                             val results =
                                 locName?.let { it1 -> geocoder.getFromLocationName(it1, 1) }
@@ -304,7 +300,7 @@ class MapsFragment : Fragment() {
                 }
             }
         }
-Log.d(TAG(), "tryint o prog error")
+        Log.d(TAG(), "tryint o prog error")
         fusedLocationProviderClient =
             LocationServices.getFusedLocationProviderClient(requireActivity())
 
@@ -372,14 +368,7 @@ Log.d(TAG(), "tryint o prog error")
         super.onViewCreated(view, savedInstanceState)
 
         binding.nearestScooterButton.setOnClickListener {
-//            Log.i(TAG(), scooterLatLng.toString())
             zoomNearestScooter()
-//            Log.d(TAG(), "New coordinate x2: $newCoord")
-//            Log.i(TAG(), newCoord.toString())
-
-//            onclick, zoom into the scooter, show route there and make marker yellow(?)
-
-
         }
     }
 
@@ -462,14 +451,6 @@ Log.d(TAG(), "tryint o prog error")
                     polylines?.add(polyline)
                     polylines?.add(polylineOutline)
 
-
-//
-//                    val overlayOptions = PolylineOptions()
-//                        .color(Color.WHITE) // set the color to white
-//                        .width(15f) // set the width to 15 pixels
-//                        .pattern(listOf(Dot(), Gap(20f))) // set the pattern to a dotted line
-//                        .zIndex(polyline.zIndex + 1)
-//
 //                    mMap.addPolyline(overlayOptions)
                     if (closestScooterLatLng != null) {
 
@@ -562,12 +543,6 @@ Log.d(TAG(), "tryint o prog error")
         return (earthRadius * c)
     }
 
-    override fun onStart() {
-        super.onStart()
-
-    }
-
-
     /**
      * Called after `onStart()`, `onRestart()`, or `onPause()`, for your activity to start
      * interacting with the user. This is an indicator that the activity became active and ready to
@@ -588,7 +563,7 @@ Log.d(TAG(), "tryint o prog error")
             myReceiver!!,
             IntentFilter(LocationUpdatesService.ACTION_BROADCAST)
         );
-//        subscribeToLocationUpdates()
+        subscribeToLocationUpdates()
     }
 
     /**
@@ -623,7 +598,7 @@ Log.d(TAG(), "tryint o prog error")
     override fun onPause() {
         super.onPause()
         LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(myReceiver!!);
-//        unsubscribeToLocationUpdates()
+        unsubscribeToLocationUpdates()
     }
 
     override fun onStop() {
@@ -685,34 +660,34 @@ Log.d(TAG(), "tryint o prog error")
         requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION
     ) != PackageManager.PERMISSION_GRANTED
 
-//
-//    /**
-//     * Subscribes this application to get the location changes via the `locationCallback()`.
-//     */
-//    private fun subscribeToLocationUpdates() {
-//
-//        // Check if the user allows the application to access the location-aware resources.
-//        if (checkPermission())
-//            return
-//
-//        // Sets the accuracy and desired interval for active location updates.
-//        val locationRequest = LocationRequest
-//            .Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000)
-//            .build()
-//
-//        // Subscribe to location changes.
-//        fusedLocationProviderClient.requestLocationUpdates(
-//            locationRequest, locationCallback, Looper.getMainLooper()
-//        )
-//    }
-//
-//    /**
-//     * Unsubscribes this application of getting the location changes from  the `locationCallback()`.
-//     */
-//    private fun unsubscribeToLocationUpdates() {
-//        // Unsubscribe to location changes.
-//        fusedLocationProviderClient
-//            .removeLocationUpdates(locationCallback)
-//    }
+
+    /**
+     * Subscribes this application to get the location changes via the `locationCallback()`.
+     */
+    private fun subscribeToLocationUpdates() {
+
+        // Check if the user allows the application to access the location-aware resources.
+        if (checkPermission())
+            return
+
+        // Sets the accuracy and desired interval for active location updates.
+        val locationRequest = LocationRequest
+            .Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000)
+            .build()
+
+        // Subscribe to location changes.
+        fusedLocationProviderClient.requestLocationUpdates(
+            locationRequest, locationCallback, Looper.getMainLooper()
+        )
+    }
+
+    /**
+     * Unsubscribes this application of getting the location changes from  the `locationCallback()`.
+     */
+    private fun unsubscribeToLocationUpdates() {
+        // Unsubscribe to location changes.
+        fusedLocationProviderClient
+            .removeLocationUpdates(locationCallback)
+    }
 
 }

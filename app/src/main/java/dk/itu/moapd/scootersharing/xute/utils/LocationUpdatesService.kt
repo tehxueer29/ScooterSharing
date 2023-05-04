@@ -19,7 +19,6 @@ import dk.itu.moapd.scootersharing.xute.activities.MainActivity
 import dk.itu.moapd.scootersharing.xute.utils.Utils.requestingLocationUpdates
 import dk.itu.moapd.scootersharing.xute.utils.Utils.setRequestingLocationUpdates
 
-
 class LocationUpdatesService : Service() {
 
     private val PACKAGE_NAME =
@@ -30,6 +29,7 @@ class LocationUpdatesService : Service() {
         val ACTION_BROADCAST = "$PACKAGE_NAME.broadcast"
 
     }
+
     /**
      * The name of the channel for notifications.
      */
@@ -96,11 +96,6 @@ class LocationUpdatesService : Service() {
      * The current location.
      */
     private var mLocation: Location? = null
-
-
-//    override fun onBind(intent: Intent): IBinder {
-//        TODO("Return the communication channel to the service.")
-//    }
 
     override fun onRebind(intent: Intent?) {
         // Called when a client (MainActivity in case of this sample) returns to the foreground
@@ -236,6 +231,7 @@ class LocationUpdatesService : Service() {
             Log.e(TAG(), "Lost location permission.$unlikely")
         }
     }
+
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig!!)
         mChangingConfiguration = true
@@ -273,6 +269,7 @@ class LocationUpdatesService : Service() {
             Log.e(TAG(), "Lost location permission. Could not remove updates. $unlikely")
         }
     }
+
     /**
      * Returns the [NotificationCompat] used as part of the foreground service.
      */
@@ -336,7 +333,4 @@ class LocationUpdatesService : Service() {
         }
         return false
     }
-
-
-
 }

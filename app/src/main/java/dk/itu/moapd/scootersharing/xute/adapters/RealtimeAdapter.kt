@@ -21,7 +21,6 @@
 package dk.itu.moapd.scootersharing.xute.adapters
 
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -39,7 +38,6 @@ import dk.itu.moapd.scootersharing.xute.interfaces.ItemClickListener
 import dk.itu.moapd.scootersharing.xute.models.Image
 import dk.itu.moapd.scootersharing.xute.models.Scooter
 import dk.itu.moapd.scootersharing.xute.utils.BUCKET_URL
-import dk.itu.moapd.scootersharing.xute.utils.TAG
 
 
 /**
@@ -96,6 +94,7 @@ class RealtimeAdapter(
             binding.rideInProgress.visibility = View.GONE
             binding.imageView.visibility = View.VISIBLE
         }
+
         fun showEndRideBtn() {
             binding.reserveRideButton.visibility = View.VISIBLE
             binding.rideInProgress.visibility = View.VISIBLE
@@ -140,10 +139,6 @@ class RealtimeAdapter(
                     .centerCrop()
                     .into(binding.imageView)
             }
-
-            // Set the TextView visibility.
-//            binding.textView.text = image.createdAt?.toDateString()
-//            binding.textView.isVisible = displayDate
         }
 
     }

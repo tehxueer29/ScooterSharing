@@ -326,8 +326,6 @@ class StartRideFragment : Fragment(), ItemClickListener {
                             // Do something here
                             Log.d(TAG(), dataSnapshot.value.toString())
 
-//                            TODO make the data consistent.
-
                             if (dataSnapshot.value is ArrayList<*>) {
                                 Log.d(TAG(), "trueE")
                                 val dataSnapshot = dataSnapshot.value as ArrayList<*>

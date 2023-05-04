@@ -24,14 +24,14 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 
-
 /**
  * This class implements in interface to allow users swipe items to left and right in a
  * `RecyclerView`.
  */
 open class SwipeToDeleteCallback :
     ItemTouchHelper.SimpleCallback(
-        0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+        0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+    ) {
 
     /**
      * Called when `ItemTouchHelper` wants to move the dragged item from its old position to the new
@@ -48,8 +48,10 @@ open class SwipeToDeleteCallback :
      *
      * @return `True` if the `viewHolder` has been moved to the adapter position of target.
      */
-    override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder,
-                        target: RecyclerView.ViewHolder): Boolean {
+    override fun onMove(
+        recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder,
+        target: RecyclerView.ViewHolder
+    ): Boolean {
         return false
     }
 

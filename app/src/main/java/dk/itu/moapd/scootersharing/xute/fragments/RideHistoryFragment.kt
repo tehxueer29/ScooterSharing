@@ -9,9 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResult
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -108,7 +106,7 @@ class RideHistoryFragment : Fragment(), ItemClickListener {
                 .build()
 
             // Create the custom adapter to bind a list of dummy objects.
-            adapter = RealtimeAdapter(requireContext(),this, "RideHistoryUI",options)
+            adapter = RealtimeAdapter(requireContext(), this, "RideHistoryUI", options)
 
             with(binding.contentList) {
                 // Define the recycler view layout manager.
@@ -213,20 +211,6 @@ class RideHistoryFragment : Fragment(), ItemClickListener {
             recyclerView.adapter = adapter
         }
     }
-
-    /** Print a message in the ‘Logcat ‘ system and show snackbar message at bottom of user screen.
-     */
-//    private fun showMessage(scooter: Scooter) {
-//        val imm = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
-//        imm?.hideSoftInputFromWindow(binding.updateRideButton.windowToken, 0)
-//        val snackbar =
-//            Snackbar.make(
-//                binding.updateRideButton,
-//                scooter.customMessage("updated"),
-//                Snackbar.LENGTH_LONG
-//            )
-//        snackbar.show()
-//    }
 
     private fun showMessage() {
         Log.d(TAG(), getString(R.string.started))

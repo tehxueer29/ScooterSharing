@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Fabricio Batista Narcizo
+ * Copyright (c) 2023 Teh Xue Er
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
  * associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -34,7 +34,7 @@ import java.io.InputStream
  * Defines a set of dependencies and options to use when initializing Glide within an application.
  */
 @GlideModule
-class GlideModule: AppGlideModule() {
+class GlideModule : AppGlideModule() {
 
     /**
      * Registers a set of components to use when initializing Glide within an app when Glide's
@@ -45,8 +45,10 @@ class GlideModule: AppGlideModule() {
      * @param registry The registration instance.
      */
     override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
-        registry.append(StorageReference::class.java, InputStream::class.java,
-            FirebaseImageLoader.Factory())
+        registry.append(
+            StorageReference::class.java, InputStream::class.java,
+            FirebaseImageLoader.Factory()
+        )
     }
 
 }

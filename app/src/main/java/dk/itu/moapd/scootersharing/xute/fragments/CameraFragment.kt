@@ -358,9 +358,6 @@ class CameraFragment : Fragment() {
     private fun uploadImageToBucket(
         uri: Uri, image: StorageReference, thumbnail: StorageReference
     ) {
-        // Code for showing progress bar while uploading.
-//        binding.contentList.progressBar.visibility = View.VISIBLE
-
         // Upload the original image.
         image.putFile(uri).addOnSuccessListener { imageUrl ->
 
@@ -370,9 +367,6 @@ class CameraFragment : Fragment() {
                 // Save the image reference in the database.
                 imageUrl.metadata?.reference?.downloadUrl?.addOnSuccessListener { imageUri ->
                     saveImageInDatabase(imageUri.toString(), image.path)
-
-
-//                    binding.contentList.progressBar.visibility = View.GONE
                 }
             }
         }
@@ -388,13 +382,20 @@ class CameraFragment : Fragment() {
      * @return The immutable URI reference of created thumbnail image.
      */
     private fun createThumbnail(uri: Uri, size: Int = 300): Uri {
-        val decode = BitmapFactory.decodeStream(requireActivity().contentResolver.openInputStream(uri))
-        val thumbnail = ThumbnailUtils.extractThumbnail(decode, size, size, ThumbnailUtils.OPTIONS_RECYCLE_INPUT)
+        val decode =
+            BitmapFactory.decodeStream(requireActivity().contentResolver.openInputStream(uri))
+        val thumbnail = ThumbnailUtils.extractThumbnail(
+            decode,
+            size,
+            size,
+            ThumbnailUtils.OPTIONS_RECYCLE_INPUT
+        )
 
         // Rotate the thumbnail by 90 degrees clockwise
         val matrix = Matrix()
         matrix.postRotate(90f)
-        val rotatedThumbnail = Bitmap.createBitmap(thumbnail, 0, 0, thumbnail.width, thumbnail.height, matrix, true)
+        val rotatedThumbnail =
+            Bitmap.createBitmap(thumbnail, 0, 0, thumbnail.width, thumbnail.height, matrix, true)
 
         return getImageUri(rotatedThumbnail)
     }

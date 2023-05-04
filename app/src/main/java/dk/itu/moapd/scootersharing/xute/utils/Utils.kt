@@ -7,7 +7,6 @@ import java.text.DateFormat
 import java.util.*
 import dk.itu.moapd.scootersharing.xute.R
 
-
 internal object Utils {
     const val KEY_REQUESTING_LOCATION_UPDATES = "requesting_locaction_updates"
 

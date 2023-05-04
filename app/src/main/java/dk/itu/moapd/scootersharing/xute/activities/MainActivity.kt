@@ -35,7 +35,6 @@ import com.google.android.gms.location.*
 import com.google.android.gms.tasks.Task
 import dk.itu.moapd.scootersharing.xute.R
 import dk.itu.moapd.scootersharing.xute.databinding.ActivityMainBinding
-import dk.itu.moapd.scootersharing.xute.fragments.MapsFragment
 
 /**
  * An activity class with methods to manage the main activity of ScooterSharing application.
@@ -89,14 +88,14 @@ class MainActivity : AppCompatActivity() {
         requestUserPermissions()
 
         if (allPermissionsGranted()) {
-            openLocation ()
+            openLocation()
         } else {
             // Show a dialog to ask the user to allow the application to access the device's camera.
             ActivityCompat.requestPermissions(
                 this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
             )
 
-            openLocation ()
+            openLocation()
         }
 
         val navHostFragment = supportFragmentManager
@@ -104,7 +103,7 @@ class MainActivity : AppCompatActivity() {
         val navController = navHostFragment.navController
     }
 
-    private fun openLocation () {
+    private fun openLocation() {
         val locationRequest = LocationRequest.create()
         locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         val builder = LocationSettingsRequest.Builder()
