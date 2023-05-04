@@ -1,19 +1,22 @@
 package dk.itu.moapd.scootersharing.xute.fragments
 
 import android.Manifest
-import android.content.IntentSender
+import android.content.*
 import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.location.Location
-import androidx.fragment.app.Fragment
 import android.os.Bundle
+import android.os.IBinder
 import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
@@ -38,9 +41,11 @@ import dk.itu.moapd.scootersharing.xute.R
 import dk.itu.moapd.scootersharing.xute.databinding.FragmentMapsBinding
 import dk.itu.moapd.scootersharing.xute.models.Scooter
 import dk.itu.moapd.scootersharing.xute.utils.DATABASE_URL
+import dk.itu.moapd.scootersharing.xute.utils.LocationUpdatesService
+import dk.itu.moapd.scootersharing.xute.utils.LocationUpdatesService.LocalBinder
 import dk.itu.moapd.scootersharing.xute.utils.TAG
+import dk.itu.moapd.scootersharing.xute.utils.Utils
 import java.util.*
-import kotlin.collections.ArrayList
 
 
 class MapsFragment : Fragment() {
@@ -50,6 +55,57 @@ class MapsFragment : Fragment() {
      */
     companion object {
         private const val ALL_PERMISSIONS_RESULT = 1011
+    }
+
+    //
+//    // Used in checking for runtime permissions.
+//    private val REQUEST_PERMISSIONS_REQUEST_CODE = 34
+    var polylines: MutableList<Polyline?>? = ArrayList()
+
+    // The BroadcastReceiver used to listen from broadcasts from the service.
+    private var myReceiver: MyReceiver? = null
+
+    /**
+     * Receiver for broadcasts sent by [LocationUpdatesService].
+     */
+    private inner class MyReceiver : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent) {
+            val location =
+                intent.getParcelableExtra<Location>(LocationUpdatesService.EXTRA_LOCATION)
+//            if (location != null) {
+//                Toast.makeText(
+//                    requireContext(), Utils.getLocationText(location),
+//                    Toast.LENGTH_SHORT
+//                ).show()
+//            }
+        }
+    }
+
+    // A reference to the service used to get location updates.
+    private var mService: LocationUpdatesService? = null
+
+    // Tracks the bound state of the service.
+    private var mBound = false
+
+    // UI elements.
+//    private val mRequestLocationUpdatesButton: Button? = null
+//    private val mRemoveLocationUpdatesButton: Button? = null
+
+    // Monitors the state of the connection to the service.
+    private val mServiceConnection = object : ServiceConnection {
+
+        override fun onServiceConnected(name: ComponentName, service: IBinder) {
+            Log.d(TAG(), "binded!")
+            val binder = service as LocalBinder
+            mService = binder.service
+            mService!!.requestLocationUpdates()
+            mBound = true
+        }
+
+        override fun onServiceDisconnected(name: ComponentName) {
+            mService = null
+            mBound = false
+        }
     }
 
     /**
@@ -170,6 +226,8 @@ class MapsFragment : Fragment() {
                 database.child("scooter").addValueEventListener(scooterListener)
             }
 
+            Log.d(TAG(), "update user location")
+
             fusedLocationProviderClient.lastLocation.addOnSuccessListener { location: Location? ->
                 if (location != null) {
                     googleMap.animateCamera(
@@ -219,12 +277,12 @@ class MapsFragment : Fragment() {
         }
 
     }
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
         // Start receiving location updates.
-//        fusedLocationProviderClient =
-//            LocationServices.getFusedLocationProviderClient(requireActivity())
+
         locationCallback = object : LocationCallback() {
 
             /**
@@ -246,8 +304,9 @@ class MapsFragment : Fragment() {
                 }
             }
         }
-
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+Log.d(TAG(), "tryint o prog error")
+        fusedLocationProviderClient =
+            LocationServices.getFusedLocationProviderClient(requireActivity())
 
     }
 
@@ -260,6 +319,17 @@ class MapsFragment : Fragment() {
         )
         // Show a dialog to ask the user to allow the application to access the device's location.
         requestUserPermissions()
+        myReceiver = MyReceiver()
+        // Check that the user hasn't revoked permissions by going to Settings.
+        if (Utils.requestingLocationUpdates(requireContext())) {
+            if (checkPermission()) {
+                requestUserPermissions();
+            }
+        }
+        requireActivity().bindService(
+            Intent(requireContext(), LocationUpdatesService::class.java), mServiceConnection,
+            Context.BIND_AUTO_CREATE
+        )
 
         // Initialize Firebase Auth.
         auth = FirebaseAuth.getInstance()
@@ -275,10 +345,6 @@ class MapsFragment : Fragment() {
         val task: Task<LocationSettingsResponse> = client.checkLocationSettings(builder.build())
         task.addOnSuccessListener { locationSettingsResponse ->
             // location settings are turned on
-
-            // Start receiving location updates.
-            fusedLocationProviderClient =
-                LocationServices.getFusedLocationProviderClient(requireActivity())
 
             // Obtain the `SupportMapFragment` and get notified when the map is ready to be used.
             val mapFragment =
@@ -321,6 +387,8 @@ class MapsFragment : Fragment() {
         // Check if the user allows the application to access the location-aware resources.
         if (checkPermission())
             return
+
+
         fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
             var userLatLng = LatLng(location.latitude, location.longitude)
             Log.d(TAG(), scooterLatLng.toString())
@@ -358,6 +426,11 @@ class MapsFragment : Fragment() {
 
 //                    Log.d(TAG(), points.toString())
                     Log.d(TAG(), decodedPoints.toString())
+                    if (polylines != null) {
+                        for (line in polylines!!) {
+                            line!!.remove()
+                        }
+                    }
 
                     // Get the color from colors.xml
                     val polylineColor = ContextCompat.getColor(requireContext(), R.color.yellow_700)
@@ -373,6 +446,7 @@ class MapsFragment : Fragment() {
                     }
                     val polyline = mMap.addPolyline(polylineOptions)
 
+
                     // Define outline polyline options
                     val outlineOptions = PolylineOptions()
                         .addAll(decodedPoints)
@@ -384,7 +458,11 @@ class MapsFragment : Fragment() {
                         .zIndex(polyline.zIndex - 1)
 
 // Add outline polyline to the map
-                    mMap.addPolyline(outlineOptions)
+                    val polylineOutline = mMap.addPolyline(outlineOptions)
+                    polylines?.add(polyline)
+                    polylines?.add(polylineOutline)
+
+
 //
 //                    val overlayOptions = PolylineOptions()
 //                        .color(Color.WHITE) // set the color to white
@@ -484,6 +562,11 @@ class MapsFragment : Fragment() {
         return (earthRadius * c)
     }
 
+    override fun onStart() {
+        super.onStart()
+
+    }
+
 
     /**
      * Called after `onStart()`, `onRestart()`, or `onPause()`, for your activity to start
@@ -501,7 +584,11 @@ class MapsFragment : Fragment() {
      */
     override fun onResume() {
         super.onResume()
-        subscribeToLocationUpdates()
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(
+            myReceiver!!,
+            IntentFilter(LocationUpdatesService.ACTION_BROADCAST)
+        );
+//        subscribeToLocationUpdates()
     }
 
     /**
@@ -535,7 +622,19 @@ class MapsFragment : Fragment() {
      */
     override fun onPause() {
         super.onPause()
-        unsubscribeToLocationUpdates()
+        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(myReceiver!!);
+//        unsubscribeToLocationUpdates()
+    }
+
+    override fun onStop() {
+        if (mBound) {
+            // Unbind from the service. This signals to the service that this activity is no longer
+            // in the foreground, and the service can respond by promoting itself to a foreground
+            // service.
+            requireActivity().unbindService(mServiceConnection)
+            mBound = false
+        }
+        super.onStop()
     }
 
     /**
@@ -587,33 +686,33 @@ class MapsFragment : Fragment() {
     ) != PackageManager.PERMISSION_GRANTED
 
 //
-    /**
-     * Subscribes this application to get the location changes via the `locationCallback()`.
-     */
-    private fun subscribeToLocationUpdates() {
-
-        // Check if the user allows the application to access the location-aware resources.
-        if (checkPermission())
-            return
-
-        // Sets the accuracy and desired interval for active location updates.
-        val locationRequest = LocationRequest
-            .Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000)
-            .build()
-
-        // Subscribe to location changes.
-        fusedLocationProviderClient.requestLocationUpdates(
-            locationRequest, locationCallback, Looper.getMainLooper()
-        )
-    }
-
-    /**
-     * Unsubscribes this application of getting the location changes from  the `locationCallback()`.
-     */
-    private fun unsubscribeToLocationUpdates() {
-        // Unsubscribe to location changes.
-        fusedLocationProviderClient
-            .removeLocationUpdates(locationCallback)
-    }
+//    /**
+//     * Subscribes this application to get the location changes via the `locationCallback()`.
+//     */
+//    private fun subscribeToLocationUpdates() {
+//
+//        // Check if the user allows the application to access the location-aware resources.
+//        if (checkPermission())
+//            return
+//
+//        // Sets the accuracy and desired interval for active location updates.
+//        val locationRequest = LocationRequest
+//            .Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000)
+//            .build()
+//
+//        // Subscribe to location changes.
+//        fusedLocationProviderClient.requestLocationUpdates(
+//            locationRequest, locationCallback, Looper.getMainLooper()
+//        )
+//    }
+//
+//    /**
+//     * Unsubscribes this application of getting the location changes from  the `locationCallback()`.
+//     */
+//    private fun unsubscribeToLocationUpdates() {
+//        // Unsubscribe to location changes.
+//        fusedLocationProviderClient
+//            .removeLocationUpdates(locationCallback)
+//    }
 
 }
